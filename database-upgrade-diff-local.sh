@@ -16,6 +16,7 @@ OPTIONS:
   -s  Database password
   -n  Database name
   -q  Quiet mode, list only changes
+  -e  PHP executable (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs -o localhost -p 3306 -r username -s secret -n projectdb
 EOF
@@ -44,8 +45,9 @@ databasePassword=
 databaseName=
 magentoVersion=
 quiet=0
+phpExecutable="php"
 
-while getopts hw:o:p:r:s:n:v:q? option; do
+while getopts hw:o:p:r:s:n:v:qe:? option; do
   case ${option} in
     h) usage; exit 1;;
     w) webPath=$(trim "$OPTARG");;
@@ -56,6 +58,7 @@ while getopts hw:o:p:r:s:n:v:q? option; do
     v) magentoVersion=$(trim "$OPTARG");;
     n) databaseName=$(trim "$OPTARG");;
     q) quiet=1;;
+    e) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
@@ -106,7 +109,7 @@ cd "${webPath}"
 if [[ "${quiet}" == 0 ]]; then
   echo "Determining inactive modules"
 fi
-inactiveModuleNames=( $(bash -c "php -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {if (\\\$config['modules'][\\\$moduleName] == 0) {echo \\\"\\\$moduleName\n\\\";}}\" | sort -n") )
+inactiveModuleNames=( $(bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {if (\\\$config['modules'][\\\$moduleName] == 0) {echo \\\"\\\$moduleName\n\\\";}}\" | sort -n") )
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#inactiveModuleNames[@]} inactive modules"
 fi

@@ -12,6 +12,7 @@ OPTIONS:
   -w  Web path of Magento installation
   -u  Web user (optional)
   -g  Web group (optional)
+  -e  PHP executable (optional)
 
 Example: ${scriptName} -f
 EOF
@@ -25,13 +26,15 @@ trim()
 webPath=
 webUser=
 webGroup=
+phpExecutable="php"
 
-while getopts hw:u:g:? option; do
+while getopts hw:u:g:e:? option; do
   case ${option} in
     h) usage; exit 1;;
     w) webPath=$(trim "$OPTARG");;
     u) webUser=$(trim "$OPTARG");;
     g) webGroup=$(trim "$OPTARG");;
+    e) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
@@ -61,8 +64,8 @@ cd "${webPath}"
 if [[ -f bin/magento ]]; then
   echo "Cleaning block cache"
   if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "bin/magento cache:clean block_html"
+    sudo -H -u "${webUser}" bash -c "${phpExecutable} bin/magento cache:clean block_html"
   else
-    bin/magento cache:clean block_html
+    "${phpExecutable}" bin/magento cache:clean block_html
   fi
 fi

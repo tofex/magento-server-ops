@@ -1,5 +1,35 @@
 #!/bin/bash -e
 
+scriptName="${0##*/}"
+
+usage()
+{
+cat >&2 << EOF
+usage: ${scriptName} options
+
+OPTIONS:
+  -h  Show this message
+  -e  PHP executable (optional)
+
+Example: ${scriptName}
+EOF
+}
+
+trim()
+{
+  echo -n "$1" | xargs
+}
+
+phpExecutable="php"
+
+while getopts he:? option; do
+  case "${option}" in
+    h) usage; exit 1;;
+    e) phpExecutable=$(trim "$OPTARG");;
+    ?) usage; exit 1;;
+  esac
+done
+
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [[ ! -f ${currentPath}/../env.properties ]]; then
@@ -43,7 +73,7 @@ for server in "${serverList[@]}"; do
 natcasesort(\$extensions);
 echo implode(' ', \$extensions);
 EOF
-      IFS=" " baseUrls=( $(php "${currentPath}/../read_config_value.php" "${webPath}" web/*/base_url) )
+      IFS=" " baseUrls=( $("${phpExecutable}" "${currentPath}/../read_config_value.php" "${webPath}" web/*/base_url) )
       for baseUrl in "${baseUrls[@]}"; do
         baseUrl=$(echo "${baseUrl}" | sed 's:/*$::')
         echo "Checking url: ${baseUrl}"
@@ -83,7 +113,7 @@ natcasesort(\$extensions);
 echo implode(' ', \$extensions);
 EOF
 
-IFS=" " loadedExtensions=( $(php /tmp/get_loaded_extensions.php) )
+IFS=" " loadedExtensions=( $("${phpExecutable}" /tmp/get_loaded_extensions.php) )
 rm -rf /tmp/loaded_extensions.list
 touch /tmp/loaded_extensions.list
 for loadedExtension in "${loadedExtensions[@]}"; do

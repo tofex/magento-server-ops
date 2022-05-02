@@ -15,6 +15,7 @@ OPTIONS:
   -n  List only unknown modules
   -m  List only missing modules
   -q  Quiet mode, list only changes
+  -e  PHP executable (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
@@ -31,8 +32,9 @@ webGroup=
 listOnlyUnknown=0
 listOnlyMissing=0
 quiet=0
+phpExecutable="php"
 
-while getopts hw:u:g:nmq? option; do
+while getopts hw:u:g:nmqe:? option; do
   case "${option}" in
     h) usage; exit 1;;
     w) webPath=$(trim "$OPTARG");;
@@ -41,6 +43,7 @@ while getopts hw:u:g:nmq? option; do
     n) listOnlyUnknown=1;;
     m) listOnlyMissing=1;;
     q) quiet=1;;
+    e) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
@@ -77,9 +80,9 @@ if [[ "${quiet}" == 0 ]]; then
 fi
 rm -rf /tmp/modules-configured.list
 if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-  sudo -H -u "${webUser}" bash -c "php -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
+  sudo -H -u "${webUser}" bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
 else
-  bash -c "php -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
+  bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
 fi
 
 if [[ "${quiet}" == 0 ]]; then
