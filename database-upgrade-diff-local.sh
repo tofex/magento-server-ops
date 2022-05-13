@@ -117,7 +117,18 @@ fi
 if [[ "${quiet}" == 0 ]]; then
   echo "Determining module versions in source code in path: ${webPath}"
 fi
-sourceCodeModules=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep "setup_version" {} \; | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup" | sort) )
+sourceCodeModuleFiles=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep -l "setup_version\s*=" {} \;) )
+sourceCodeModules=()
+for sourceCodeModuleFile in "${sourceCodeModuleFiles[@]}"; do
+  sourceCodeModule=$(cat "${sourceCodeModuleFile}" | tr '\n' ' ' | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup")
+  sourceCodeModule=$(trim "${sourceCodeModule}")
+  if [[ -n "${sourceCodeModule}" ]]; then
+    sourceCodeModules+=("${sourceCodeModule}")
+  fi
+done
+IFS=$'\n' sourceCodeModules=($(sort <<<"${sourceCodeModules[*]}"))
+unset IFS
+#sourceCodeModules=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep "setup_version\s=" {} \; | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup" | sort) )
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#sourceCodeModules[@]} modules"
 fi
@@ -165,6 +176,10 @@ if [[ $(versionCompare "${magentoVersion}" "2.3.0") == 0 ]] || [[ $(versionCompa
   sourcePatchClasses=()
   for patchFile in "${patchFiles[@]}"; do
     if [[ $(grep -c "apply" "${patchFile}") -gt 0 ]]; then
+      abstractClass=$(grep -oE "abstract\s*class" "${patchFile}" | cat)
+      if [[ -n "${abstractClass}" ]]; then
+        continue
+      fi
       nameSpace=$(grep -oE "^namespace\s*([a-zA-Z0-9_]+\\\\*)*" "${patchFile}" | cut -d " " -f 2)
       if [[ -n "${nameSpace}" ]]; then
         className=$(basename "${patchFile}" ".php")
