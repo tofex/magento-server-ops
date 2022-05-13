@@ -120,7 +120,7 @@ fi
 sourceCodeModuleFiles=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep -l "setup_version\s*=" {} \;) )
 sourceCodeModules=()
 for sourceCodeModuleFile in "${sourceCodeModuleFiles[@]}"; do
-  sourceCodeModule=$(cat "${sourceCodeModuleFile}" | tr '\n' ' ' | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup")
+  sourceCodeModule=$(cat "${sourceCodeModuleFile}" | tr '\n' ' ' | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup" | cat)
   sourceCodeModule=$(trim "${sourceCodeModule}")
   if [[ -n "${sourceCodeModule}" ]]; then
     sourceCodeModules+=("${sourceCodeModule}")
