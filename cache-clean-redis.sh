@@ -48,32 +48,32 @@ fi
 for server in "${serverList[@]}"; do
   redisCache=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "redisCache")
   if [[ -n "${redisCache}" ]]; then
-    type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-    port=$(ini-parse "${currentPath}/../env.properties" "yes" "${redisCache}" "port")
-    database=$(ini-parse "${currentPath}/../env.properties" "yes" "${redisCache}" "database")
-    password=$(ini-parse "${currentPath}/../env.properties" "no" "${redisCache}" "password")
-    if [[ -z "${port}" ]]; then
-      echo "No Redis port specified!"
-      exit 1
-    fi
-    if [[ -z "${database}" ]]; then
-      echo "No Redis database specified!"
-      exit 1
-    fi
-    if [[ -z "${password}" ]]; then
-      password="-"
-    fi
-    if [[ "${type}" == "local" ]]; then
-      echo "--- Cleaning Redis cache on local server: ${server} ---"
-      "${currentPath}/redis-clean.sh" -o "localhost" -p "${port}" -d "${database}" -s "${password}"
-    elif [[ "${type}" == "ssh" ]]; then
-      sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
-      if [[ -z "${sshHost}" ]]; then
-        echo "No SSH host specified!"
+    database=$(ini-parse "${currentPath}/../env.properties" "no" "${redisCache}" "database")
+    if [[ -n "${database}" ]]; then
+      type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
+      port=$(ini-parse "${currentPath}/../env.properties" "yes" "${redisCache}" "port")
+      password=$(ini-parse "${currentPath}/../env.properties" "no" "${redisCache}" "password")
+      if [[ -z "${port}" ]]; then
+        echo "No Redis port specified!"
         exit 1
       fi
-      echo "--- Cleaning Redis cache on remote server: ${server} ---"
-      "${currentPath}/redis-clean.sh" -o "${sshHost}" -p "${port}" -d "${database}" -s "${password}"
+      if [[ -z "${password}" ]]; then
+        password="-"
+      fi
+      if [[ "${type}" == "local" ]]; then
+        echo "--- Cleaning Redis cache on local server: ${server} ---"
+        "${currentPath}/redis-clean.sh" -o "localhost" -p "${port}" -d "${database}" -s "${password}"
+      elif [[ "${type}" == "ssh" ]]; then
+        sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
+        if [[ -z "${sshHost}" ]]; then
+          echo "No SSH host specified!"
+          exit 1
+        fi
+        echo "--- Cleaning Redis cache on remote server: ${server} ---"
+        "${currentPath}/redis-clean.sh" -o "${sshHost}" -p "${port}" -d "${database}" -s "${password}"
+      fi
+    else
+      echo "No database configured for Redis cache"
     fi
   fi
 done
