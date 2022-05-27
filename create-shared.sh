@@ -111,9 +111,43 @@ for server in "${serverList[@]}"; do
             -f "${fileName}"
         fi
       fi
-    else
-      echo "--- Todo: Creating shared file on remote server: ${server} ---"
-      exit 1
+    elif [[ "${type}" == "ssh" ]]; then
+      echo "--- Creating shared file on remove server: ${server} ---"
+      sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "user")
+      sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
+
+      echo "Getting server fingerprint"
+      ssh-keyscan "${sshHost}" >> ~/.ssh/known_hosts
+
+      echo "Copying download script to ${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
+      scp -q "${currentPath}/create-shared-local.sh" "${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
+      echo "Executing script at ${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
+      if [[ "${revert}" == 1 ]]; then
+        ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
+          -w "${webPath}" \
+          -u "${webUser}" \
+          -g "${webGroup}" \
+          -s "${webRoot}/${sharedPath}" \
+          -f "${fileName}" \
+          -r
+      else
+        if [[ "${overwrite}" == 1 ]]; then
+          ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
+            -w "${webPath}" \
+            -u "${webUser}" \
+            -g "${webGroup}" \
+            -s "${webRoot}/${sharedPath}" \
+            -f "${fileName}" \
+            -o
+        else
+          ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
+            -w "${webPath}" \
+            -u "${webUser}" \
+            -g "${webGroup}" \
+            -s "${webRoot}/${sharedPath}" \
+            -f "${fileName}"
+        fi
+      fi
     fi
 
     if [[ "${revert}" == 0 ]]; then
