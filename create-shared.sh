@@ -26,7 +26,7 @@ trim()
 
 fileName=
 overwrite=0
-sharedPath="static"
+sharedPath=
 revert=0
 updateLink=1
 
@@ -54,6 +54,10 @@ fi
 if [[ -z "${fileName}" ]]; then
   echo "No file specified"
   exit 1
+fi
+
+if [[ -z "${sharedPath}" ]]; then
+  sharedPath="static"
 fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
