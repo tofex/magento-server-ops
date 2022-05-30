@@ -47,15 +47,19 @@ fi
 
 for server in "${serverList[@]}"; do
   webServer=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "webServer")
+
   if [[ -n "${webServer}" ]]; then
     type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
+    webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
+
     if [[ "${type}" == "local" ]]; then
-      webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
+      echo "--- Cleaning file cache on local server: ${server} ---"
       webUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webUser")
       webGroup=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webGroup")
-      echo "--- Cleaning file cache on local server: ${server} ---"
+
       "${currentPath}/cache-clean-files-local.sh" -w "${webPath}" -u "${webUser}" -g "${webGroup}"
     elif [[ "${type}" == "ssh" ]]; then
+      echo "--- Cleaning file cache on remote server: ${server} ---"
       sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "user")
       sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
       if [[ -z "${sshUser}" ]]; then
@@ -66,10 +70,15 @@ for server in "${serverList[@]}"; do
         echo "No SSH host specified!"
         exit 1
       fi
-      echo "--- Cleaning file cache on remote server: ${server} ---"
-      echo "Copying script to ${sshUser}@${sshHost}:/tmp/cache-clean-local.sh"
+
+      echo "Copying script to ${sshUser}@${sshHost}:/tmp/cache-clean-files-local.sh"
       scp -q "${currentPath}/cache-clean-files-local.sh" "${sshUser}@${sshHost}:/tmp/cache-clean-files-local.sh"
+
+      echo "Executing script at ${sshUser}@${sshHost}:/tmp/cache-clean-files-local.sh"
       ssh "${sshUser}@${sshHost}" /tmp/cache-clean-files-local.sh -w "${webPath}"
+
+      echo "Removing script from: ${sshUser}@${sshHost}:/tmp/cache-clean-files-local.sh"
+      ssh "${sshUser}@${sshHost}" "rm -rf /tmp/cache-clean-files-local.sh"
     fi
   fi
 done
