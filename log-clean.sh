@@ -39,37 +39,4 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "system" "server") )
-if [[ "${#serverList[@]}" -eq 0 ]]; then
-  echo "No servers specified!"
-  exit 1
-fi
-
-for server in "${serverList[@]}"; do
-  webServer=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "webServer")
-  if [[ -n "${webServer}" ]]; then
-    type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-    if [[ "${type}" == "local" ]]; then
-      webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
-      webUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webUser")
-      webGroup=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webGroup")
-      echo "--- Cleaning log files on local server: ${server} ---"
-      "${currentPath}/log-clean-local.sh" -w "${webPath}" -u "${webUser}" -g "${webGroup}"
-    elif [[ "${type}" == "ssh" ]]; then
-      sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "user")
-      sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
-      if [[ -z "${sshUser}" ]]; then
-        echo "No SSH user specified!"
-        exit 1
-      fi
-      if [[ -z "${sshHost}" ]]; then
-        echo "No SSH host specified!"
-        exit 1
-      fi
-      echo "--- Cleaning log files on remote server: ${server} ---"
-      echo "Copying script to ${sshUser}@${sshHost}:/tmp/log-clean-local.sh"
-      scp -q "${currentPath}/log-clean-local.sh" "${sshUser}@${sshHost}:/tmp/log-clean-local.sh"
-      ssh "${sshUser}@${sshHost}" /tmp/log-clean-local.sh -w "${webPath}"
-    fi
-  fi
-done
+"${currentPath}/../core/script/web-server-all.sh" "${currentPath}/log-clean-local.sh"
