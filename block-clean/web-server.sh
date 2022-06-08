@@ -12,7 +12,7 @@ OPTIONS:
   -w  Web path of Magento installation
   -u  Web user (optional)
   -g  Web group (optional)
-  -c  PHP executable (optional)
+  -b  PHP executable (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
@@ -28,7 +28,7 @@ webUser=
 webGroup=
 phpExecutable=
 
-while getopts hn:w:u:g:t:v:p:z:x:y:c:? option; do
+while getopts hn:w:u:g:t:v:p:z:x:y:b:? option; do
   case ${option} in
     h) usage; exit 1;;
     n) ;;
@@ -41,7 +41,7 @@ while getopts hn:w:u:g:t:v:p:z:x:y:c:? option; do
     z) ;;
     x) ;;
     y) ;;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done

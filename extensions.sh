@@ -9,7 +9,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -e  PHP executable (optional)
+  -b  PHP executable (optional)
 
 Example: ${scriptName}
 EOF
@@ -20,15 +20,19 @@ trim()
   echo -n "$1" | xargs
 }
 
-phpExecutable="php"
+phpExecutable=
 
-while getopts he:? option; do
+while getopts hb:? option; do
   case "${option}" in
     h) usage; exit 1;;
-    e) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 

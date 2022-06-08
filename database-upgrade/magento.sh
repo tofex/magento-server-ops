@@ -15,7 +15,7 @@ OPTIONS:
   -u  Web user (optional)
   -g  Web group (optional)
   -l  Generated code clean script
-  -c  PHP executable (optional)
+  -b  PHP executable (optional)
   -i  Memory limit (optional)
 
 Example: ${scriptName} -m 2.3.7 -w /var/www/magento/htdocs
@@ -35,13 +35,15 @@ generatedCleanScript=
 phpExecutable=
 memoryLimit=
 
-while getopts hm:e:d:r:w:u:g:t:v:p:z:x:y:l:c:i:? option; do
+while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:l:b:i:? option; do
   case "${option}" in
     h) usage; exit 1;;
     m) magentoVersion=$(trim "$OPTARG");;
     e) ;;
     d) ;;
     r) ;;
+    c) ;;
+    n) ;;
     w) webPath=$(trim "$OPTARG");;
     u) webUser=$(trim "$OPTARG");;
     g) webGroup=$(trim "$OPTARG");;
@@ -52,7 +54,7 @@ while getopts hm:e:d:r:w:u:g:t:v:p:z:x:y:l:c:i:? option; do
     x) ;;
     y) ;;
     l) generatedCleanScript=$(trim "$OPTARG");;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     i) memoryLimit=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac

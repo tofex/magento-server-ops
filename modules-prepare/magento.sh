@@ -16,7 +16,7 @@ OPTIONS:
   -s  Module diff script
   -l  Generated code clean script
   -a  Static content clean script
-  -c  PHP executable (optional)
+  -b  PHP executable (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
@@ -36,13 +36,15 @@ generatedCleanScript=
 staticCleanScript=
 phpExecutable=
 
-while getopts hm:e:d:r:w:u:g:t:v:p:z:x:y:s:l:a:c:? option; do
+while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:s:l:a:b:? option; do
   case "${option}" in
     h) usage; exit 1;;
     m) magentoVersion=$(trim "$OPTARG");;
     e) ;;
     d) ;;
     r) ;;
+    c) ;;
+    n) ;;
     w) webPath=$(trim "$OPTARG");;
     u) webUser=$(trim "$OPTARG");;
     g) webGroup=$(trim "$OPTARG");;
@@ -55,7 +57,7 @@ while getopts hm:e:d:r:w:u:g:t:v:p:z:x:y:s:l:a:c:? option; do
     s) moduleDiffScript=$(trim "$OPTARG");;
     l) generatedCleanScript=$(trim "$OPTARG");;
     a) staticCleanScript=$(trim "$OPTARG");;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done

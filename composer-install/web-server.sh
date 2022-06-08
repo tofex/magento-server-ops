@@ -12,8 +12,8 @@ OPTIONS:
   -w  Web path of Magento installation
   -u  Web user (optional)
   -g  Web group (optional)
-  -m  Memory limit (optional)
-  -p  PHP executable (optional)
+  -b  PHP executable (optional)
+  -i  Memory limit (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
@@ -30,7 +30,7 @@ webGroup=
 memoryLimit=
 phpExecutable=
 
-while getopts hn:w:u:g:t:v:p:z:x:y:m:c:? option; do
+while getopts hn:w:u:g:t:v:p:z:x:y:b:i:? option; do
   case ${option} in
     h) usage; exit 1;;
     n) ;;
@@ -43,8 +43,8 @@ while getopts hn:w:u:g:t:v:p:z:x:y:m:c:? option; do
     z) ;;
     x) ;;
     y) ;;
-    m) memoryLimit=$(trim "$OPTARG");;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
+    i) memoryLimit=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done

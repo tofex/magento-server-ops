@@ -9,7 +9,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -c  PHP executable (optional)
+  -b  PHP executable (optional)
   -i  Memory limit (optional)
   -f  Force (optional)
 
@@ -26,10 +26,10 @@ phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hc:i:f? option; do
+while getopts hb:i:f? option; do
   case "${option}" in
     h) usage; exit 1;;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     i) memoryLimit=$(trim "$OPTARG");;
     f) force=1;;
     ?) usage; exit 1;;
@@ -57,24 +57,24 @@ if [[ "${magentoVersion:0:1}" == 1 ]]; then
   if [[ -n "${memoryLimit}" ]]; then
     "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
       -l "script:${currentPath}/generated-clean/web-server.sh" \
-      -c "${phpExecutable}" \
+      -b "${phpExecutable}" \
       -i "${memoryLimit}"
   else
     "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
       -l "script:${currentPath}/generated-clean/web-server.sh" \
-      -c "${phpExecutable}"
+      -b "${phpExecutable}"
   fi
 else
   if [[ "${force}" == 1 ]]; then
     if [[ -n "${memoryLimit}" ]]; then
       "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
         -l "script:${currentPath}/generated-clean/web-server.sh" \
-        -c "${phpExecutable}" \
+        -b "${phpExecutable}" \
         -i "${memoryLimit}"
     else
       "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
         -l "script:${currentPath}/generated-clean/web-server.sh" \
-        -c "${phpExecutable}"
+        -b "${phpExecutable}"
     fi
   else
     echo "Determining database changes"
@@ -90,12 +90,12 @@ else
       if [[ -n "${memoryLimit}" ]]; then
         "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
           -l "script:${currentPath}/generated-clean/web-server.sh" \
-          -c "${phpExecutable}" \
+          -b "${phpExecutable}" \
           -i "${memoryLimit}"
       else
         "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
           -l "script:${currentPath}/generated-clean/web-server.sh" \
-          -c "${phpExecutable}"
+          -b "${phpExecutable}"
       fi
     else
       echo "No changes found"

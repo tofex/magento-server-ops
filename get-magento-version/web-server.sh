@@ -12,7 +12,7 @@ OPTIONS:
   -w  Web path of Magento installation
   -u  Web user (optional)
   -g  Web group (optional)
-  -c  PHP executable (optional)
+  -b  PHP executable (optional)
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
@@ -26,9 +26,9 @@ trim()
 webPath=
 webUser=
 webGroup=
-phpExecutable="php"
+phpExecutable=
 
-while getopts hn:w:u:g:t:v:p:z:x:y:c:? option; do
+while getopts hn:w:u:g:t:v:p:z:x:y:b:? option; do
   case "${option}" in
     h) usage; exit 1;;
     n) ;;
@@ -41,10 +41,20 @@ while getopts hn:w:u:g:t:v:p:z:x:y:c:? option; do
     z) ;;
     x) ;;
     y) ;;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${webPath}" ]]; then
+  echo "No web path specified!"
+  exit 1
+fi
+
+if [[ ! -d "${webPath}" ]]; then
+  echo "No web path available!"
+  exit 1
+fi
 
 currentUser="$(whoami)"
 if [[ -z "${webUser}" ]]; then
@@ -55,14 +65,8 @@ if [[ -z "${webGroup}" ]]; then
   webGroup="${currentGroup}"
 fi
 
-if [[ -z "${webPath}" ]]; then
-  echo "No web path specified!"
-  exit 1
-fi
-
-if [[ ! -d "${webPath}" ]]; then
-  echo "No web path available!"
-  exit 1
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
 fi
 
 cd "${webPath}"

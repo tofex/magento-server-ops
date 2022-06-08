@@ -10,7 +10,7 @@ usage: ${scriptName} options
 OPTIONS:
   -h  Show this message
   -w  Web path of Magento installation
-  -e  PHP executable (optional)
+  -b  PHP executable (optional)
   -q  Quiet mode, list only changes
 
 Example: ${scriptName} -w /var/www/magento/htdocs
@@ -26,7 +26,7 @@ webPath=
 phpExecutable=
 quiet=0
 
-while getopts hn:w:u:g:t:v:p:z:x:y:c:q? option; do
+while getopts hn:w:u:g:t:v:p:z:x:y:b:q? option; do
   case "${option}" in
     h) usage; exit 1;;
     n) ;;
@@ -39,7 +39,7 @@ while getopts hn:w:u:g:t:v:p:z:x:y:c:q? option; do
     z) ;;
     x) ;;
     y) ;;
-    c) phpExecutable=$(trim "$OPTARG");;
+    b) phpExecutable=$(trim "$OPTARG");;
     q) quiet=1;;
     ?) usage; exit 1;;
   esac
