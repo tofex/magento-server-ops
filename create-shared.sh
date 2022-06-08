@@ -9,9 +9,9 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -f  file to move
+  -f  File to move
   -o  Overwrite existing files (Optional)
-  -s  shared file path, default: shared
+  -s  Shared file path, default: shared
   -r  revert moving file to shared
   -n  No update of link in server deployment
 
@@ -69,103 +69,35 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "system" "server") )
-if [[ "${#serverList[@]}" -eq 0 ]]; then
-  echo "No servers specified!"
-  exit 1
+if [[ "${revert}" == 1 ]]; then
+  "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
+    -s "${sharedPath}" \
+    -f "${fileName}" \
+    -r
+else
+  if [[ "${overwrite}" == 1 ]]; then
+    "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
+      -s "${sharedPath}" \
+      -f "${fileName}" \
+      -o
+  else
+    "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
+      -s "${sharedPath}" \
+      -f "${fileName}"
+  fi
 fi
 
-for server in "${serverList[@]}"; do
-  webServer=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "webServer")
-
-  if [[ -n "${webServer}" ]]; then
-    webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
-    webRoot=$(dirname "${webPath}")
-
-    type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-
-    if [[ "${type}" == "local" ]]; then
-      webUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webUser")
-      webGroup=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webGroup")
-
-      echo "--- Creating shared file on local server: ${server} ---"
-      if [[ "${revert}" == 1 ]]; then
-        "${currentPath}/create-shared-local.sh" \
-          -w "${webPath}" \
-          -u "${webUser}" \
-          -g "${webGroup}" \
-          -s "${webRoot}/${sharedPath}" \
-          -f "${fileName}" \
-          -r
-      else
-        if [[ "${overwrite}" == 1 ]]; then
-          "${currentPath}/create-shared-local.sh" \
-            -w "${webPath}" \
-            -u "${webUser}" \
-            -g "${webGroup}" \
-            -s "${webRoot}/${sharedPath}" \
-            -f "${fileName}" \
-            -o
-        else
-          "${currentPath}/create-shared-local.sh" \
-            -w "${webPath}" \
-            -u "${webUser}" \
-            -g "${webGroup}" \
-            -s "${webRoot}/${sharedPath}" \
-            -f "${fileName}"
-        fi
-      fi
-    elif [[ "${type}" == "ssh" ]]; then
-      echo "--- Creating shared file on remove server: ${server} ---"
-      sshUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "user")
-      sshHost=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "host")
-
-      echo "Getting server fingerprint"
-      ssh-keyscan "${sshHost}" >> ~/.ssh/known_hosts
-
-      echo "Copying download script to ${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
-      scp -q "${currentPath}/create-shared-local.sh" "${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
-      echo "Executing script at ${sshUser}@${sshHost}:/tmp/create-shared-local.sh"
-      if [[ "${revert}" == 1 ]]; then
-        ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
-          -w "${webPath}" \
-          -u "${webUser}" \
-          -g "${webGroup}" \
-          -s "${webRoot}/${sharedPath}" \
-          -f "${fileName}" \
-          -r
-      else
-        if [[ "${overwrite}" == 1 ]]; then
-          ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
-            -w "${webPath}" \
-            -u "${webUser}" \
-            -g "${webGroup}" \
-            -s "${webRoot}/${sharedPath}" \
-            -f "${fileName}" \
-            -o
-        else
-          ssh "${sshUser}@${sshHost}" /tmp/create-shared-local.sh \
-            -w "${webPath}" \
-            -u "${webUser}" \
-            -g "${webGroup}" \
-            -s "${webRoot}/${sharedPath}" \
-            -f "${fileName}"
-        fi
-      fi
-    fi
-
-    if [[ "${revert}" == 0 ]]; then
-      if [[ "${updateLink}" == 1 ]]; then
-        addLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
-        echo "Adding link: ${addLink} to deployment"
-        ini-set "${currentPath}/../env.properties" "no" "${server}" "link" "${addLink}"
-      fi
-    else
-      if [[ "${updateLink}" == 1 ]]; then
-        removeLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
-        echo "Removing link: ${removeLink} from deployment"
-        ini-del "${currentPath}/../env.properties" "${server}" "link" "${removeLink}"
-      fi
-    fi
+if [[ "${revert}" == 0 ]]; then
+  if [[ "${updateLink}" == 1 ]]; then
+    "${currentPath}/../core/script/env/web-servers.sh" "${currentPath}/create-shared/env-web-server.sh" \
+      -f "${fileName}" \
+      -s "${sharedPath}"
   fi
-done
+else
+  if [[ "${updateLink}" == 1 ]]; then
+    "${currentPath}/../core/script/env/web-servers.sh" "${currentPath}/create-shared/env-web-server.sh" \
+      -f "${fileName}" \
+      -s "${sharedPath}" \
+      -r
+  fi
+fi

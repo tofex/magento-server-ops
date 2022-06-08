@@ -36,41 +36,13 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   currentPath="$(dirname "$(readlink -f "$0")")"
 fi
 
-cd "${currentPath}"
-
 if [[ ! -f "${currentPath}/../env.properties" ]]; then
   echo "No environment specified!"
   exit 1
 fi
 
-serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "system" "server") )
-if [[ "${#serverList[@]}" -eq 0 ]]; then
-  echo "No servers specified!"
-  exit 1
+if [[ "${quiet}" == 1 ]]; then
+  "${currentPath}/../core/script/web-server/single/quiet.sh" "${currentPath}/modules-diff/web-server.sh" -q
+else
+  "${currentPath}/../core/script/web-server/single.sh" "${currentPath}/modules-diff/web-server.sh"
 fi
-
-for server in "${serverList[@]}"; do
-  webServer=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "webServer")
-  if [[ -n "${webServer}" ]]; then
-    type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-    if [[ "${type}" == "local" ]]; then
-      webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
-      webUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webUser")
-      webGroup=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webGroup")
-
-      if [[ "${quiet}" == 1 ]]; then
-        "${currentPath}/modules-diff-local.sh" \
-          -w "${webPath}" \
-          -u "${webUser}" \
-          -g "${webGroup}" \
-          -q
-      else
-        echo "--- Determining modules diff on server: ${server} ---"
-        "${currentPath}/modules-diff-local.sh" \
-          -w "${webPath}" \
-          -u "${webUser}" \
-          -g "${webGroup}"
-      fi
-    fi
-  fi
-done

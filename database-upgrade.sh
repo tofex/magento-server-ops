@@ -9,7 +9,8 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -m  Memory limit (optional)
+  -c  PHP executable (optional)
+  -i  Memory limit (optional)
   -f  Force (optional)
 
 Example: ${scriptName}
@@ -21,17 +22,23 @@ trim()
   echo -n "$1" | xargs
 }
 
+phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hm:f? option; do
+while getopts hc:i:f? option; do
   case "${option}" in
     h) usage; exit 1;;
-    m) memoryLimit=$(trim "$OPTARG");;
+    c) phpExecutable=$(trim "$OPTARG");;
+    i) memoryLimit=$(trim "$OPTARG");;
     f) force=1;;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -39,112 +46,59 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   currentPath="$(dirname "$(readlink -f "$0")")"
 fi
 
-cd "${currentPath}"
-
 if [[ ! -f "${currentPath}/../env.properties" ]]; then
   echo "No environment specified!"
   exit 1
 fi
 
-serverList=( $(ini-parse "${currentPath}/../env.properties" "yes" "system" "server") )
-if [[ "${#serverList[@]}" -eq 0 ]]; then
-  echo "No servers specified!"
-  exit 1
-fi
+magentoVersion=$("${currentPath}/../core/server/magento/version.sh")
 
-magentoVersion=$(ini-parse "${currentPath}/../env.properties" "yes" "install" "magentoVersion")
-if [[ -z "${magentoVersion}" ]]; then
-  echo "No magento version specified!"
-  exit 1
-fi
+if [[ "${magentoVersion:0:1}" == 1 ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+      -l "script:${currentPath}/generated-clean/web-server.sh" \
+      -c "${phpExecutable}" \
+      -i "${memoryLimit}"
+  else
+    "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+      -l "script:${currentPath}/generated-clean/web-server.sh" \
+      -c "${phpExecutable}"
+  fi
+else
+  if [[ "${force}" == 1 ]]; then
+    if [[ -n "${memoryLimit}" ]]; then
+      "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+        -l "script:${currentPath}/generated-clean/web-server.sh" \
+        -c "${phpExecutable}" \
+        -i "${memoryLimit}"
+    else
+      "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+        -l "script:${currentPath}/generated-clean/web-server.sh" \
+        -c "${phpExecutable}"
+    fi
+  else
+    echo "Determining database changes"
 
-for server in "${serverList[@]}"; do
-  database=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "database")
-  if [[ -n "${database}" ]]; then
-    upgrade=$(ini-parse "${currentPath}/../env.properties" "no" "${server}" "upgrade")
-    if [[ "${upgrade}" == 1 ]] || [[ "${upgrade}" == "yes" ]]; then
-      port=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "port")
-      user=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "user")
-      password=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "password")
-      name=$(ini-parse "${currentPath}/../env.properties" "yes" "${database}" "name")
-      if [[ -z "${port}" ]]; then
-        echo "No database port specified!"
-        exit 1
-      fi
-      if [[ -z "${user}" ]]; then
-        echo "No database user specified!"
-        exit 1
-      fi
-      if [[ -z "${password}" ]]; then
-        echo "No database password specified!"
-        exit 1
-      fi
-      if [[ -z "${name}" ]]; then
-        echo "No database name specified!"
-        exit 1
-      fi
+    oldIFS="${IFS}"
+    IFS=$'\n'
+    changes=( $("${currentPath}/database-upgrade-diff.sh" -q) )
+    IFS="${oldIFS}"
 
-      type=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "type")
-      if [[ "${type}" == "local" ]]; then
-        echo "--- Upgrade database on local server: ${server} ---"
-        webPath=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webPath")
-        webUser=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webUser")
-        webGroup=$(ini-parse "${currentPath}/../env.properties" "yes" "${server}" "webGroup")
+    if [[ "${#changes[@]}" -gt 0 ]]; then
+      ( IFS=$'\n'; echo "${changes[*]}" )
 
-        if [[ -n "${memoryLimit}" ]]; then
-          if [[ "${force}" == 1 ]]; then
-            "${currentPath}/database-upgrade-local.sh" \
-              -v "${magentoVersion}" \
-              -w "${webPath}" \
-              -u "${webUser}" \
-              -g "${webGroup}" \
-              -o "localhost" \
-              -p "${port}" \
-              -r "${user}" \
-              -s "${password}" \
-              -n "${name}" \
-              -m "${memoryLimit}" \
-              -f
-          else
-            "${currentPath}/database-upgrade-local.sh" \
-              -v "${magentoVersion}" \
-              -w "${webPath}" \
-              -u "${webUser}" \
-              -g "${webGroup}" \
-              -o "localhost" \
-              -p "${port}" \
-              -r "${user}" \
-              -s "${password}" \
-              -n "${name}" \
-              -m "${memoryLimit}"
-          fi
-        else
-          if [[ "${force}" == 1 ]]; then
-            "${currentPath}/database-upgrade-local.sh" \
-              -v "${magentoVersion}" \
-              -w "${webPath}" \
-              -u "${webUser}" \
-              -g "${webGroup}" \
-              -o "localhost" \
-              -p "${port}" \
-              -r "${user}" \
-              -s "${password}" \
-              -n "${name}" \
-              -f
-          else
-            "${currentPath}/database-upgrade-local.sh" \
-              -v "${magentoVersion}" \
-              -w "${webPath}" \
-              -u "${webUser}" \
-              -g "${webGroup}" \
-              -o "localhost" \
-              -p "${port}" \
-              -r "${user}" \
-              -s "${password}" \
-              -n "${name}"
-          fi
-        fi
+      if [[ -n "${memoryLimit}" ]]; then
+        "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+          -l "script:${currentPath}/generated-clean/web-server.sh" \
+          -c "${phpExecutable}" \
+          -i "${memoryLimit}"
+      else
+        "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
+          -l "script:${currentPath}/generated-clean/web-server.sh" \
+          -c "${phpExecutable}"
       fi
+    else
+      echo "No changes found"
     fi
   fi
-done
+fi

@@ -32,11 +32,9 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   currentPath="$(dirname "$(readlink -f "$0")")"
 fi
 
-cd "${currentPath}"
-
 if [[ ! -f "${currentPath}/../env.properties" ]]; then
   echo "No environment specified!"
   exit 1
 fi
 
-"${currentPath}/../core/script/web-server-all.sh" "${currentPath}/log-clean-local.sh"
+"${currentPath}/../core/script/web-server/all.sh" "${currentPath}/log-clean/web-server.sh"
