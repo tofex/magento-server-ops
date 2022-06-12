@@ -37,7 +37,7 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-varnish=$("${currentPath}(../core/server/varnish/single.sh" | cat)
+varnish=$("${currentPath}/../core/server/varnish/single.sh" | cat)
 
 if [[ -n "${varnish}" ]]; then
   "${currentPath}/../core/script/host/varnish.sh" "${currentPath}/fpc-clean-varnish/varnish.sh"

@@ -37,7 +37,7 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-webServer=$("${currentPath}(../core/server/web-server/single.sh" | cat)
+webServer=$("${currentPath}/../core/server/web-server/single.sh" | cat)
 
 if [[ -n "${webServer}" ]]; then
   "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/fpc-clean-files/web-server.sh"
