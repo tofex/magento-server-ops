@@ -37,4 +37,8 @@ if [[ ! -f "${currentPath}/../env.properties" ]]; then
   exit 1
 fi
 
-"${currentPath}/../core/script/redis/fpc/single.sh" "${currentPath}/cache-clean-redis/redis.sh"
+redisFPC=$("${currentPath}(../core/server/redis/fpc/single.sh" | cat)
+
+if [[ -n "${redisFPC}" ]]; then
+  "${currentPath}/../core/script/redis/fpc/single.sh" "${currentPath}/cache-clean-redis/redis.sh"
+fi
