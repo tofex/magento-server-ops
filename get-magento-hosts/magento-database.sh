@@ -9,14 +9,14 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
-  -v  Magento version
+  -m  Magento version
   -o  Database hostname, default: localhost
   -p  Port of the database, default: 3306
-  -r  Database user
+  -u  Database user
   -s  Database password
-  -n  Database name
+  -b  Database name
 
-Example: ${scriptName} -v 2.4.2 -r user -s password -n database
+Example: ${scriptName} -m 2.4.2 -u user -s password -b database
 EOF
 }
 
@@ -26,21 +26,27 @@ trim()
 }
 
 magentoVersion=
-databaseHost="localhost"
-databasePort="3306"
+databaseHost=
+databasePort=
 databaseUser=
 databasePassword=
 databaseName=
 
-while getopts hv:o:p:r:n:s:n: option; do
+while getopts hm:e:d:r:c:o:p:u:n:s:b:t:v:? option; do
   case "${option}" in
     h) usage; exit 1;;
-    v) magentoVersion=$(trim "$OPTARG");;
+    m) magentoVersion=$(trim "$OPTARG");;
+    e) ;;
+    d) ;;
+    r) ;;
+    c) ;;
     o) databaseHost=$(trim "$OPTARG");;
     p) databasePort=$(trim "$OPTARG");;
-    r) databaseUser=$(trim "$OPTARG");;
+    u) databaseUser=$(trim "$OPTARG");;
     s) databasePassword=$(trim "$OPTARG");;
-    n) databaseName=$(trim "$OPTARG");;
+    b) databaseName=$(trim "$OPTARG");;
+    t) ;;
+    v) ;;
     ?) usage; exit 1;;
   esac
 done
@@ -51,13 +57,11 @@ if [[ -z "${magentoVersion}" ]]; then
 fi
 
 if [[ -z "${databaseHost}" ]]; then
-  echo "No database host specified!"
-  exit 1
+  databaseHost="localhost"
 fi
 
 if [[ -z "${databasePort}" ]]; then
-  echo "No database port specified!"
-  exit 1
+  databasePort="3306"
 fi
 
 if [[ -z "${databaseUser}" ]]; then
