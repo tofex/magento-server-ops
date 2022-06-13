@@ -32,7 +32,7 @@ databaseUser=
 databasePassword=
 databaseName=
 
-while getopts hm:e:d:r:c:o:p:u:n:s:b:t:v:? option; do
+while getopts hm:e:d:r:c:o:p:u:s:b:t:v:? option; do
   case "${option}" in
     h) usage; exit 1;;
     m) magentoVersion=$(trim "$OPTARG");;
