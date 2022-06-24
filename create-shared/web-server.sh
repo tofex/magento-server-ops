@@ -153,9 +153,9 @@ else
 
     echo "Moving file from: ${sharedPathFileName} to: ${webPathFileName}"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      mv "${sharedPathFileName}" "${webPathFileName}"
-    else
       sudo -H -u "${webUser}" bash -c "mv ${sharedPathFileName} ${webPathFileName}"
+    else
+      mv "${sharedPathFileName}" "${webPathFileName}"
     fi
   else
     echo "${webPathFileName} is not a symlink"

@@ -57,7 +57,7 @@ if [[ -z "${fileName}" ]]; then
 fi
 
 if [[ -z "${sharedPath}" ]]; then
-  sharedPath="static"
+  sharedPath="shared"
 fi
 
 currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
