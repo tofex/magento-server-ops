@@ -1,76 +1,70 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
 {
 cat >&2 << EOF
+
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -o  The redisHost name of the Redis instance
-  -p  The redisPort of the Redis instance
-  -s  The redisPassword of the Redis instance (optional)
-  -b  The number of the redisDatabase to clean
+  --help                Show this message
+  --redisCacheHost      The host name of the Redis instance
+  --redisCachePort      The port of the Redis instance
+  --redisCachePassword  The password of the Redis instance (optional)
+  --redisCacheDatabase  The number of the database to clean
 
-Example: ${scriptName} -w /var/www/magento/htdocs
+Example: ${scriptName} --redisCacheHost localhost --redisCachePort 6379 --redisCacheDatabase 0
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
+redisCacheHost=
+redisCachePort=
+redisCachePassword=
+redisCacheDatabase=
 
-redisHost=
-redisPort=
-redisPassword=
-redisDatabase=
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
-while getopts ho:p:s:b:v:? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    o) redisHost=$(trim "$OPTARG");;
-    p) redisPort=$(trim "$OPTARG");;
-    s) redisPassword=$(trim "$OPTARG");;
-    b) redisDatabase=$(trim "$OPTARG");;
-    v) ;;
-    ?) usage; exit 1;;
-  esac
-done
-
-if [[ -z "${redisHost}" ]]; then
-  echo "No Redis redisHost specified!"
+if [[ -z "${redisCacheHost}" ]]; then
+  echo "No Redis cache host specified!"
+  usage
   exit 1
 fi
 
-if [[ -z "${redisPort}" ]]; then
-  echo "No Redis redisPort specified!"
+if [[ -z "${redisCachePort}" ]]; then
+  echo "No Redis cache port specified!"
+  usage
   exit 1
 fi
 
-if [[ -z "${redisDatabase}" ]]; then
-  echo "No Redis redisDatabase specified!"
+if [[ -z "${redisCacheDatabase}" ]]; then
+  echo "No Redis cache database specified!"
+  usage
   exit 1
 fi
 
-if [[ -n "${redisHost}" ]] && [[ -n "${redisPort}" ]] && [[ -n "${redisDatabase}" ]]; then
+if [[ -n "${redisCacheHost}" ]] && [[ -n "${redisCachePort}" ]] && [[ -n "${redisCacheDatabase}" ]]; then
   redisCliAvailable=$(which redis-cli | wc -l)
   telnetAvailable=$(which telnet | wc -l)
   if [[ "${redisCliAvailable}" -eq 1 ]]; then
     echo "Flushing Redis using redis-cli"
-    if [[ -n "${redisPassword}" ]] && [[ "${redisPassword}" != "-" ]]; then
-      REDISCLI_AUTH="${redisPassword}" redis-cli -h "${redisHost}" -p "${redisPort}" -n "${redisDatabase}" FLUSHDB
+    if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
+      REDISCLI_AUTH="${redisCachePassword}" redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
     else
-      redis-cli -h "${redisHost}" -p "${redisPort}" -n "${redisDatabase}" FLUSHDB
+      redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
     fi
   elif [[ "${telnetAvailable}" -eq 1 ]]; then
     echo "Flushing Redis using telnet"
-    if [[ -n "${redisPassword}" ]] && [[ "${redisPassword}" != "-" ]]; then
-      ( sleep 1; echo "auth ${redisPassword}"; echo select "${redisDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisHost}" "${redisPort}" | cat
+    if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
+      ( sleep 1; echo "auth ${redisCachePassword}"; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
     else
-      ( sleep 1; echo select "${redisDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisHost}" "${redisPort}" | cat
+      ( sleep 1; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
     fi
   else
     echo "Cannot flush Redis because neither redis-cli nor telnet is available"
