@@ -8,8 +8,4 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-redisFPC=$("${currentPath}/../core/server/redis/fpc/single.sh" | cat)
-
-if [[ -n "${redisFPC}" ]]; then
-  "${currentPath}/../core/script/redis/fpc/single.sh" "${currentPath}/cache-clean-redis/redis.sh"
-fi
+"${currentPath}/../core/script/run.sh" "redisFPC" "${currentPath}/cache-clean-redis/redis.sh"
