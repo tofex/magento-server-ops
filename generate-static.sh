@@ -1,6 +1,13 @@
 #!/bin/bash -e
 
 scriptName="${0##*/}"
+scriptPath="${BASH_SOURCE[0]}"
+
+if [[ -L "${scriptPath}" ]]; then
+  scriptPath=$(realpath "${scriptPath}")
+fi
+
+currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
 usage()
 {
@@ -32,12 +39,6 @@ while getopts hi:f? option; do
     ?) usage; exit 1;;
   esac
 done
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  currentPath="$(dirname "$(readlink -f "$0")")"
-fi
 
 echo "Determining required locales"
 backendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-backend-locales.sh" -q) )

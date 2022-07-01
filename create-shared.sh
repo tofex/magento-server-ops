@@ -1,6 +1,13 @@
 #!/bin/bash -e
 
 scriptName="${0##*/}"
+scriptPath="${BASH_SOURCE[0]}"
+
+if [[ -L "${scriptPath}" ]]; then
+  scriptPath=$(realpath "${scriptPath}")
+fi
+
+currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
 usage()
 {
@@ -58,15 +65,6 @@ fi
 
 if [[ -z "${sharedPath}" ]]; then
   sharedPath="shared"
-fi
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-cd "${currentPath}"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  echo "No environment specified!"
-  exit 1
 fi
 
 if [[ "${revert}" == 1 ]]; then

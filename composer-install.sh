@@ -1,6 +1,13 @@
 #!/bin/bash -e
 
 scriptName="${0##*/}"
+scriptPath="${BASH_SOURCE[0]}"
+
+if [[ -L "${scriptPath}" ]]; then
+  scriptPath=$(realpath "${scriptPath}")
+fi
+
+currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
 usage()
 {
@@ -29,17 +36,6 @@ while getopts hm:? option; do
     ?) usage; exit 1;;
   esac
 done
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  currentPath="$(dirname "$(readlink -f "$0")")"
-fi
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  echo "No environment specified!"
-  exit 1
-fi
 
 if [[ -n "${memoryLimit}" ]]; then
   "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/composer-install/web-server.sh" \

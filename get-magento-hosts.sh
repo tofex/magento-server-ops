@@ -1,6 +1,13 @@
 #!/bin/bash -e
 
 scriptName="${0##*/}"
+scriptPath="${BASH_SOURCE[0]}"
+
+if [[ -L "${scriptPath}" ]]; then
+  scriptPath=$(realpath "${scriptPath}")
+fi
+
+currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
 usage()
 {
@@ -29,12 +36,6 @@ while getopts hq? option; do
     ?) usage; exit 1;;
   esac
 done
-
-currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [[ ! -f "${currentPath}/../env.properties" ]]; then
-  currentPath="$(dirname "$(readlink -f "$0")")"
-fi
 
 if [[ "${quiet}" == 1 ]]; then
   "${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/get-magento-hosts/magento-database.sh"
