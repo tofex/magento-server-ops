@@ -49,25 +49,23 @@ if [[ -z "${redisCacheDatabase}" ]]; then
   exit 1
 fi
 
-if [[ -n "${redisCacheHost}" ]] && [[ -n "${redisCachePort}" ]] && [[ -n "${redisCacheDatabase}" ]]; then
-  redisCliAvailable=$(which redis-cli | wc -l)
-  telnetAvailable=$(which telnet | wc -l)
-  if [[ "${redisCliAvailable}" -eq 1 ]]; then
-    echo "Flushing Redis using redis-cli"
-    if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
-      REDISCLI_AUTH="${redisCachePassword}" redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
-    else
-      redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
-    fi
-  elif [[ "${telnetAvailable}" -eq 1 ]]; then
-    echo "Flushing Redis using telnet"
-    if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
-      ( sleep 1; echo "auth ${redisCachePassword}"; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
-    else
-      ( sleep 1; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
-    fi
+redisCliAvailable=$(which redis-cli | wc -l)
+telnetAvailable=$(which telnet | wc -l)
+if [[ "${redisCliAvailable}" -eq 1 ]]; then
+  echo "Flushing Redis using redis-cli"
+  if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
+    REDISCLI_AUTH="${redisCachePassword}" redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
   else
-    echo "Cannot flush Redis because neither redis-cli nor telnet is available"
-    exit 1
+    redis-cli -h "${redisCacheHost}" -p "${redisCachePort}" -n "${redisCacheDatabase}" FLUSHDB
   fi
+elif [[ "${telnetAvailable}" -eq 1 ]]; then
+  echo "Flushing Redis using telnet"
+  if [[ -n "${redisCachePassword}" ]] && [[ "${redisCachePassword}" != "-" ]]; then
+    ( sleep 1; echo "auth ${redisCachePassword}"; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
+  else
+    ( sleep 1; echo select "${redisCacheDatabase}"; sleep 1; echo flushdb; sleep 1; ) | telnet "${redisCacheHost}" "${redisCachePort}" | cat
+  fi
+else
+  echo "Cannot flush Redis because neither redis-cli nor telnet is available"
+  exit 1
 fi
