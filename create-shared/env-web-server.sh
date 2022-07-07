@@ -79,9 +79,7 @@ if [[ -z "${fileName}" ]]; then
 fi
 
 if [[ -z "${sharedPath}" ]]; then
-  echo "No shared path specified!"
-  usage
-  exit 1
+  sharedPath="shared"
 fi
 
 webRoot=$(dirname "${webPath}")

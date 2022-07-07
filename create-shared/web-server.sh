@@ -77,8 +77,7 @@ if [[ ! -d "${webPath}" ]]; then
 fi
 
 if [[ -z "${sharedPath}" ]]; then
-  echo "No shared path specified"
-  exit 1
+  sharedPath="shared"
 fi
 
 if [[ -z "${fileName}" ]]; then
