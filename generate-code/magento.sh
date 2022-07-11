@@ -190,15 +190,15 @@ else
     if [[ -n "${memoryLimit}" ]]; then
       echo "Using memory limit: ${memoryLimit}"
       if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} bin/magento setup:di:compile"
+        sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} bin/magento setup:di:compile 2>&1"
       else
-        "${phpExecutable}" -dmemory_limit="${memoryLimit}" bin/magento setup:di:compile
+        "${phpExecutable}" -dmemory_limit="${memoryLimit}" bin/magento setup:di:compile 2>&1
       fi
     else
       if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} bin/magento setup:di:compile"
+        sudo -H -u "${webUser}" bash -c "${phpExecutable} bin/magento setup:di:compile 2>&1"
       else
-        "${phpExecutable}" bin/magento setup:di:compile
+        "${phpExecutable}" bin/magento setup:di:compile 2>&1
       fi
     fi
 
