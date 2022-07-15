@@ -61,19 +61,19 @@ fi
 cd "${webPath}"
 
 if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-  sudo -H -u "${webUser}" bash -c "chmod -R 0775 var/log"
-  sudo -H -u "${webUser}" bash -c "chmod -R 0775 var/report"
+  sudo -H -u "${webUser}" bash -c "sudo chmod -R 0775 var/log"
+  sudo -H -u "${webUser}" bash -c "sudo chmod -R 0775 var/report"
 else
-  chmod -R 0775 var/log
-  chmod -R 0775 var/report
+  sudo chmod -R 0775 var/log
+  sudo chmod -R 0775 var/report
 fi
 
 if [[ "${magentoVersion:0:1}" == 1 ]]; then
   echo "No mode in Magento 1"
 elif [[ "${magentoVersion:0:1}" == 2 ]]; then
   if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "chmod 0775 pub/media"
+    sudo -H -u "${webUser}" bash -c "sudo chmod 0775 pub/media"
   else
-    chmod 0775 pub/media
+    sudo chmod 0775 pub/media
   fi
 fi
