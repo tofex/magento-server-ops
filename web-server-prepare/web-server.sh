@@ -60,20 +60,15 @@ fi
 
 cd "${webPath}"
 
-if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-  sudo -H -u "${webUser}" bash -c "sudo chmod -R 0775 var/log"
-  sudo -H -u "${webUser}" bash -c "sudo chmod -R 0775 var/report"
-else
-  sudo chmod -R 0775 var/log
-  sudo chmod -R 0775 var/report
+if [[ -d generated ]]; then
+  sudo find generated/ -maxdepth 1 -type d -exec chmod 0775 {} \;
 fi
-
-if [[ "${magentoVersion:0:1}" == 1 ]]; then
-  echo "No mode in Magento 1"
-elif [[ "${magentoVersion:0:1}" == 2 ]]; then
-  if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "sudo chmod 0775 pub/media"
-  else
-    sudo chmod 0775 pub/media
-  fi
+if [[ -d pub ]]; then
+  sudo find pub/ -maxdepth 1 -type d -exec chmod 0775 {} \;
+fi
+if [[ -d var ]]; then
+  sudo find var/ -maxdepth 1 -type d -exec chmod 0775 {} \;
+fi
+if [[ -d vendor ]]; then
+  sudo find vendor/ -maxdepth 1 -type d -exec chmod 0775 {} \;
 fi
