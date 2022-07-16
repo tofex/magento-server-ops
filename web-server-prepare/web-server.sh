@@ -76,6 +76,9 @@ fi
 if [[ -d var ]]; then
   sudo find var/ -maxdepth 1 -type d -exec chmod 0775 {} \;
 fi
+if [[ -d var/log ]]; then
+  sudo find var/log -exec chmod 0775 {} \;
+fi
 if [[ -d vendor ]]; then
   sudo find vendor/ -maxdepth 1 -type d -exec chmod 0775 {} \;
 fi
