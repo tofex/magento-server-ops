@@ -21,6 +21,7 @@ EOF
 }
 
 magentoVersion=
+webServerType=
 webPath=
 webUser=
 webGroup=
@@ -33,6 +34,12 @@ fi
 
 if [[ -z "${magentoVersion}" ]]; then
   echo "No Magento version specified!"
+  usage
+  exit 1
+fi
+
+if [[ -z "${webServerType}" ]]; then
+  echo "No web server type specified!"
   usage
   exit 1
 fi
@@ -71,4 +78,8 @@ if [[ -d var ]]; then
 fi
 if [[ -d vendor ]]; then
   sudo find vendor/ -maxdepth 1 -type d -exec chmod 0775 {} \;
+fi
+
+if [[ "${webServerType}" == "apache" ]] || [[ "${webServerType}" == "apache_php" ]]; then
+  sudo service apache2 reload
 fi
