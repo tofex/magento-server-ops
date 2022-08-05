@@ -8,8 +8,4 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-webServer=$("${currentPath}/../core/server/web-server/single.sh" | cat)
-
-if [[ -n "${webServer}" ]]; then
-  "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/fpc-clean-files/web-server.sh"
-fi
+"${currentPath}/../core/script/run.sh" "webServer:all" "${currentPath}/fpc-clean-files/web-server.sh"
