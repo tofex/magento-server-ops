@@ -8,4 +8,4 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-"${currentPath}/../core/script/run.sh" "redisCache" "${currentPath}/cache-clean-redis/redis.sh"
+"${currentPath}/../core/script/run.sh" "redisCache:ignore" "${currentPath}/cache-clean-redis/redis.sh"
