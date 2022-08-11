@@ -28,6 +28,16 @@ trim()
   echo -n "$1" | xargs
 }
 
+versionCompare() {
+  if [[ "$1" == "$2" ]]; then
+    echo "0"
+  elif [[ "$1" = $(echo -e "$1\n$2" | sort -V | head -n1) ]]; then
+    echo "1"
+  else
+    echo "2"
+  fi
+}
+
 magentoVersion=
 serverName=
 webPath=
@@ -132,17 +142,14 @@ else
     -g "${webGroup}" \
     -q)
 
-  generateRequired=0
-  if [[ ! -f generated/metadata/frontend.php ]]; then
-    echo "Generating required because no generated/metadata/frontend.php was found"
-    generateRequired=1
-  else
-    if [[ ! -f generated/metadata/files_hash.txt ]]; then
+  if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+    generateRequired=0
+    if [[ ! -f var/generation_files_hash.txt ]]; then
       echo "Generating required because no previous generated files hash was found"
       generateRequired=1
     else
       echo "Reading previous generated files hash"
-      previousGeneratedHash=$(cat generated/metadata/files_hash.txt)
+      previousGeneratedHash=$(cat var/generation_files_hash.txt)
       if [[ "${generatedHash}" != "${previousGeneratedHash}" ]]; then
         echo "Generating required because previous generated hash is different"
         generateRequired=1
@@ -152,6 +159,31 @@ else
           generateRequired=1
         else
           echo "No generating required because previous generated hash matches"
+        fi
+      fi
+    fi
+  else
+    generateRequired=0
+    if [[ ! -f generated/metadata/frontend.php ]]; then
+      echo "Generating required because no generated/metadata/frontend.php was found"
+      generateRequired=1
+    else
+      if [[ ! -f generated/metadata/files_hash.txt ]]; then
+        echo "Generating required because no previous generated files hash was found"
+        generateRequired=1
+      else
+        echo "Reading previous generated files hash"
+        previousGeneratedHash=$(cat generated/metadata/files_hash.txt)
+        if [[ "${generatedHash}" != "${previousGeneratedHash}" ]]; then
+          echo "Generating required because previous generated hash is different"
+          generateRequired=1
+        else
+          if [[ "${force}" == 1 ]]; then
+            echo "Generating required because of force mode while previous generated hash matches"
+            generateRequired=1
+          else
+            echo "No generating required because previous generated hash matches"
+          fi
         fi
       fi
     fi
@@ -202,7 +234,11 @@ else
       fi
     fi
 
-    echo "${generatedHash}" > generated/metadata/files_hash.txt
+    if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+      echo "${generatedHash}" > var/generation_files_hash.txt
+    else
+      echo "${generatedHash}" > generated/metadata/files_hash.txt
+    fi
 
     if [[ "${isSymlink}" == 1 ]]; then
       if [[ -d "${symlinkPath}/code" ]]; then
