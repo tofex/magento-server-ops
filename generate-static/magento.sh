@@ -28,6 +28,16 @@ trim()
   echo -n "$1" | xargs
 }
 
+versionCompare() {
+  if [[ "$1" == "$2" ]]; then
+    echo "0"
+  elif [[ "$1" = $(echo -e "$1\n$2" | sort -V | head -n1) ]]; then
+    echo "1"
+  else
+    echo "2"
+  fi
+}
+
 magentoVersion=
 serverName=
 webPath=
@@ -192,58 +202,88 @@ else
       -u "${webUser}" \
       -g "${webGroup}"
 
-    readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
-    readarray -d , -t backendThemeList < <(printf '%s' "${backendThemes}")
-    readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
-    readarray -d , -t frontendThemeList < <(printf '%s' "${frontendThemes}")
+    if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+      readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+      readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+      localeList=( "${backendLocaleList[@]}" "${frontendLocaleList[@]}" )
+      localeList=( $(echo "${localeList[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ') )
 
-    backendCommand="bin/magento setup:static-content:deploy"
-    for backendLocale in "${backendLocaleList[@]}"; do
-      backendCommand="${backendCommand} ${backendLocale}"
-    done
-    for backendTheme in "${backendThemeList[@]}"; do
-      backendCommand="${backendCommand} --theme ${backendTheme}"
-    done
-    backendCommand="${backendCommand} --area adminhtml --force"
+      command="bin/magento setup:static-content:deploy"
+      for locale in "${localeList[@]}"; do
+        command="${command} ${locale}"
+      done
 
-    frontendCommand="bin/magento setup:static-content:deploy"
-    for frontendLocale in "${frontendLocaleList[@]}"; do
-      frontendCommand="${frontendCommand} ${frontendLocale}"
-    done
-    for frontendTheme in "${frontendThemeList[@]}"; do
-      frontendCommand="${frontendCommand} --theme ${frontendTheme}"
-    done
-    frontendCommand="${frontendCommand} --area frontend --force"
-
-    if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      echo "Generating backend theme(s): ${backendThemeList[*]} for locale(s): ${backendLocaleList[*]} with user: ${webUser}"
-      if [[ -n "${memoryLimit}" ]]; then
-        echo "Using memory limit: ${memoryLimit}"
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${backendCommand}"
+      if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+        echo "Generating locale(s): ${localeList[*]} with user: ${webUser}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${command}"
+        else
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} ${command}"
+        fi
       else
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} ${backendCommand}"
-      fi
-      echo "Generating frontend theme(s): ${frontendThemeList[*]} for locale(s): ${frontendLocaleList[*]} with user: ${webUser}"
-      if [[ -n "${memoryLimit}" ]]; then
-        echo "Using memory limit: ${memoryLimit}"
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${frontendCommand}"
-      else
-        sudo -H -u "${webUser}" bash -c "${phpExecutable} ${frontendCommand}"
+        echo "Generating locale(s): ${localeList[*]}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${command}"
+        else
+          bash -c "${phpExecutable} ${command}"
+        fi
       fi
     else
-      echo "Generating backend theme(s): ${backendThemeList[*]} for locale(s): ${backendLocaleList[*]}"
-      if [[ -n "${memoryLimit}" ]]; then
-        echo "Using memory limit: ${memoryLimit}"
-        bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${backendCommand}"
+      readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+      readarray -d , -t backendThemeList < <(printf '%s' "${backendThemes}")
+      readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+      readarray -d , -t frontendThemeList < <(printf '%s' "${frontendThemes}")
+
+      backendCommand="bin/magento setup:static-content:deploy"
+      for backendLocale in "${backendLocaleList[@]}"; do
+        backendCommand="${backendCommand} ${backendLocale}"
+      done
+      for backendTheme in "${backendThemeList[@]}"; do
+        backendCommand="${backendCommand} --theme ${backendTheme}"
+      done
+      backendCommand="${backendCommand} --area adminhtml --force"
+
+      frontendCommand="bin/magento setup:static-content:deploy"
+      for frontendLocale in "${frontendLocaleList[@]}"; do
+        frontendCommand="${frontendCommand} ${frontendLocale}"
+      done
+      for frontendTheme in "${frontendThemeList[@]}"; do
+        frontendCommand="${frontendCommand} --theme ${frontendTheme}"
+      done
+      frontendCommand="${frontendCommand} --area frontend --force"
+
+      if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+        echo "Generating backend theme(s): ${backendThemeList[*]} for locale(s): ${backendLocaleList[*]} with user: ${webUser}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${backendCommand}"
+        else
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} ${backendCommand}"
+        fi
+        echo "Generating frontend theme(s): ${frontendThemeList[*]} for locale(s): ${frontendLocaleList[*]} with user: ${webUser}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${frontendCommand}"
+        else
+          sudo -H -u "${webUser}" bash -c "${phpExecutable} ${frontendCommand}"
+        fi
       else
-        bash -c "${phpExecutable} ${backendCommand}"
-      fi
-      echo "Generating frontend theme(s): ${frontendThemeList[*]} for locale(s): ${frontendLocaleList[*]}"
-      if [[ -n "${memoryLimit}" ]]; then
-        echo "Using memory limit: ${memoryLimit}"
-        bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${frontendCommand}"
-      else
-        bash -c "${phpExecutable} ${frontendCommand}"
+        echo "Generating backend theme(s): ${backendThemeList[*]} for locale(s): ${backendLocaleList[*]}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${backendCommand}"
+        else
+          bash -c "${phpExecutable} ${backendCommand}"
+        fi
+        echo "Generating frontend theme(s): ${frontendThemeList[*]} for locale(s): ${frontendLocaleList[*]}"
+        if [[ -n "${memoryLimit}" ]]; then
+          echo "Using memory limit: ${memoryLimit}"
+          bash -c "${phpExecutable} -dmemory_limit=${memoryLimit} ${frontendCommand}"
+        else
+          bash -c "${phpExecutable} ${frontendCommand}"
+        fi
       fi
     fi
   fi

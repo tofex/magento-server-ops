@@ -74,6 +74,12 @@ if [[ -d var/di/ ]]; then
       rm -rf var/di/*
     fi
   fi
+  echo "Removing DI directory"
+  if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+    sudo -H -u "${webUser}" bash -c "rm -rf var/di/"
+  else
+    rm -rf var/di/
+  fi
 fi
 
 if [[ -d var/generation/ ]]; then

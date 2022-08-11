@@ -144,21 +144,32 @@ else
 
   if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
     generateRequired=0
-    if [[ ! -f var/generation_files_hash.txt ]]; then
-      echo "Generating required because no previous generated files hash was found"
+    if [[ ! -d var/di/ ]]; then
+      echo "Generating required because no var/di was found"
       generateRequired=1
     else
-      echo "Reading previous generated files hash"
-      previousGeneratedHash=$(cat var/generation_files_hash.txt)
-      if [[ "${generatedHash}" != "${previousGeneratedHash}" ]]; then
-        echo "Generating required because previous generated hash is different"
+      diFiles=$(ls -A var/di/ | wc -l)
+      if [[ "${diFiles}" -eq 0 ]]; then
+        echo "Generating required because var/di is emptry"
         generateRequired=1
       else
-        if [[ "${force}" == 1 ]]; then
-          echo "Generating required because of force mode while previous generated hash matches"
+        if [[ ! -f var/generation_files_hash.txt ]]; then
+          echo "Generating required because no previous generated files hash was found"
           generateRequired=1
         else
-          echo "No generating required because previous generated hash matches"
+          echo "Reading previous generated files hash"
+          previousGeneratedHash=$(cat var/generation_files_hash.txt)
+          if [[ "${generatedHash}" != "${previousGeneratedHash}" ]]; then
+            echo "Generating required because previous generated hash is different"
+            generateRequired=1
+          else
+            if [[ "${force}" == 1 ]]; then
+              echo "Generating required because of force mode while previous generated hash matches"
+              generateRequired=1
+            else
+              echo "No generating required because previous generated hash matches"
+            fi
+          fi
         fi
       fi
     fi
