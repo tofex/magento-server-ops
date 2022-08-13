@@ -202,7 +202,7 @@ else
       -u "${webUser}" \
       -g "${webGroup}"
 
-    if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+    if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
       readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
       readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
       localeList=( "${backendLocaleList[@]}" "${frontendLocaleList[@]}" )

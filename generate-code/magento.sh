@@ -142,7 +142,7 @@ else
     -g "${webGroup}" \
     -q)
 
-  if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+  if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
     generateRequired=0
     if [[ ! -d var/di/ ]]; then
       echo "Generating required because no var/di was found"
@@ -245,7 +245,7 @@ else
       fi
     fi
 
-    if [[ $(versionCompare "${magentoVersion}" "2.1.0") == 1 ]]; then
+    if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
       echo "${generatedHash}" > var/generation_files_hash.txt
     else
       echo "${generatedHash}" > generated/metadata/files_hash.txt
