@@ -65,7 +65,7 @@ if [[ "${quiet}" == 0 ]]; then
   echo "Determining module versions in path: ${webPath}"
 fi
 
-sourceCodeModuleFiles=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep -l "setup_version\s*=" {} \;) )
+sourceCodeModuleFiles=( $(find . -name module.xml -not -path "./vendor/magento/magento2-base/dev/*" -not -path "./dev/tests/setup-integration/*" -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -not -path "./vendor/magento/composer-root-update-plugin/*" -not -path "./var/vendor/magento/composer-root-update-plugin/etc/*" -exec grep -l "setup_version\s*=" {} \;) )
 
 sourceCodeModules=()
 for sourceCodeModuleFile in "${sourceCodeModuleFiles[@]}"; do
@@ -77,8 +77,6 @@ for sourceCodeModuleFile in "${sourceCodeModuleFiles[@]}"; do
 done
 IFS=$'\n' sourceCodeModules=($(sort <<<"${sourceCodeModules[*]}"))
 unset IFS
-
-#sourceCodeModules=( $(find . -name module.xml -not -path "./vendor/amzn/amazon-payments-magento-2-plugin/src/*" -not -path "./vendor/mirasvit/module-report-api/src/*" -exec grep "setup_version\s=" {} \; | sed -E 's/.*name\s*=\s*\"([a-zA-Z0-9_]*)\".*setup_version\s*=\s*\"([p0-9\.\-]*)\".*/\1:\2/' | grep -v "^Magento_TestSetup" | sort) )
 
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#sourceCodeModules[@]} modules"
