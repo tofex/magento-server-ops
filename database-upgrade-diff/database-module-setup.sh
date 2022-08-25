@@ -14,6 +14,7 @@ OPTIONS:
   -u  User databaseName
   -s  Password
   -b  Database databaseName
+  -q  Quiet mode, list only versions
 
 Example: ${scriptName} -u magento_user -p magento_pass -b magento_db
 EOF

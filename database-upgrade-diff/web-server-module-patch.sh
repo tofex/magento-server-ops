@@ -11,7 +11,7 @@ OPTIONS:
   -h  Show this message
   -w  Web path of Magento installation
   -b  PHP executable (optional)
-  -q  Quiet mode, list only changes
+  -q  Quiet mode, list only patches
 
 Example: ${scriptName} -w /var/www/magento/htdocs
 EOF
