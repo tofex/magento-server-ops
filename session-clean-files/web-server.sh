@@ -57,9 +57,9 @@ if [[ -d var/session/ ]]; then
   if [[ "${sessionFiles}" -gt 0 ]]; then
     echo "Removing Magento session files"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      sudo -H -u "${webUser}" bash -c "rm -rf var/session/*"
+      sudo -H -u "${webUser}" bash -c "find var/session/ -type f -exec rm {} \;"
     else
-      rm -rf var/session/*
+      find var/session/ -type f -exec rm {} \;
     fi
   fi
 fi
