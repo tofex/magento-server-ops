@@ -57,7 +57,7 @@ if [[ -d var/session/ ]]; then
   if [[ "${sessionFiles}" -gt 0 ]]; then
     echo "Removing Magento session files"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      sudo -H -u "${webUser}" bash -c "find var/session/ -type f -exec rm {} \;"
+      sudo -n -H -u "${webUser}" bash -c "find var/session/ -type f -exec rm {} \;"
     else
       find var/session/ -type f -exec rm {} \;
     fi
@@ -65,9 +65,9 @@ if [[ -d var/session/ ]]; then
 fi
 
 if [[ -d /var/lib/php/sessions/ ]]; then
-  sessionFiles=$(sudo ls -A /var/lib/php/sessions/ | wc -l)
+  sessionFiles=$(sudo -n ls -A /var/lib/php/sessions/ 2>/dev/null | wc -l)
   if [[ "${sessionFiles}" -gt 0 ]]; then
     echo "Removing PHP session files"
-    sudo find /var/lib/php/sessions/ -type f -exec rm {} \;
+    sudo -n find /var/lib/php/sessions/ -type f -exec rm {} \;
   fi
 fi
