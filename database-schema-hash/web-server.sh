@@ -15,14 +15,10 @@ OPTIONS:
   --webUser              Web user (optional)
   --webGroup             Web group (optional)
   --quiet                Quiet mode
+  --save                 Save the hash
 
 Example: ${scriptName} --webPath /var/www/magento/htdocs
 EOF
-}
-
-trim()
-{
-  echo -n "$1" | xargs
 }
 
 webServerServerName=
@@ -30,6 +26,7 @@ webPath=
 webUser=
 webGroup=
 quiet=0
+save=0
 
 if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
   source "${currentPath}/../../core/prepare-parameters.sh"
@@ -61,45 +58,29 @@ if [[ -z "${webGroup}" ]]; then
   webGroup="${currentGroup}"
 fi
 
-if [[ "${quiet}" == 0 ]]; then
-  echo "Generating generated files hash in path: ${webPath}"
+if [[ "${save}" == 1 ]]; then
+  echo "Saving database schema files hash of web server: ${webServerServerName} in file: ${webPath}/var/database_schema_hash.txt"
+elif [[ "${quiet}" == 0 ]]; then
+  echo "Generating database schema files hash of web server: ${webServerServerName} in path: ${webPath}"
 fi
 
-filePatterns=( "di.xml" "extension_attributes.xml" "*.php" )
-excludePaths=( "./dev/*" "./generated/*" "./pub/*" "./setup/*" "./status/*" "./update/*" )
-
-hashCommand="find . -type f \("
-
-first=1
-for filePattern in "${filePatterns[@]}"; do
-  if [[ "${first}" == 0 ]]; then
-    hashCommand="${hashCommand}-o"
-  fi
-  hashCommand="${hashCommand} -iname '${filePattern}' "
-  first=0
-done
-
-hashCommand="${hashCommand}\) ! -iname 'autoload.php' ! -iname 'autoload_*.php'"
-
-for excludePath in "${excludePaths[@]}"; do
-  hashCommand="${hashCommand} -not -path \"${excludePath}\""
-done
-
-hashCommand="${hashCommand} | sort -n | xargs -d '\n' md5sum | md5sum | awk '{print \$1}'"
+hashCommand="find . -not -path \"./dev/*\" -not -path \"./vendor/magento/magento2-base/dev/*\" -name db_schema.xml | sort -n | xargs -d '\n' md5sum | md5sum | awk '{print \$1}'"
 
 cd "${webPath}"
 
 oldIFS="${IFS}"
 IFS=$'\n'
-if [[ "${quiet}" == 1 ]]; then
-  echo -n "${webServerServerName}:"
-  if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "$hashCommand"
-  else
-    bash -c "$hashCommand"
-  fi
+if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+  hash=$(sudo -H -u "${webUser}" bash -c "$hashCommand")
 else
   hash=$(bash -c "$hashCommand")
-  echo "Generated files hash: ${hash}"
 fi
 IFS="${oldIFS}"
+
+if [[ "${save}" == 1 ]]; then
+  echo -n "${hash}" > "${webPath}/var/database_schema_hash.txt"
+elif [[ "${quiet}" == 1 ]]; then
+  echo -n "${webServerServerName}:${hash}"
+else
+  echo "Schema files hash: ${hash}"
+fi

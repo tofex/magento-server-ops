@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -8,21 +9,16 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -o  Host databaseName, default: localhost
-  -p  Port, default: 3306
-  -u  User databaseName
-  -s  Password
-  -b  Database databaseName
-  -q  Quiet mode, list only patches
+  --help              Show this message
+  --databaseHost      Host of database, default: localhost
+  --databasePort      Port of database, default: 3306
+  --databaseUser      User of database
+  --databasePassword  Password of database
+  --databaseName      Name of database
+  --quiet             Quiet mode, list only patches
 
-Example: ${scriptName} -u magento_user -p magento_pass -b magento_db
+Example: ${scriptName} --databaseUser magento_user --databasePassword magento_pass --databaseName magento_db
 EOF
-}
-
-trim()
-{
-  echo -n "$1" | xargs
 }
 
 databaseHost=
@@ -32,20 +28,11 @@ databasePassword=
 databaseName=
 quiet=0
 
-while getopts ho:p:u:s:b:t:v:q? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    o) databaseHost=$(trim "$OPTARG");;
-    p) databasePort=$(trim "$OPTARG");;
-    u) databaseUser=$(trim "$OPTARG");;
-    s) databasePassword=$(trim "$OPTARG");;
-    b) databaseName=$(trim "$OPTARG");;
-    t) ;;
-    v) ;;
-    q) quiet=1;;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${databaseHost}" ]]; then
   databaseHost="localhost"
@@ -83,5 +70,9 @@ if [[ "${quiet}" == 0 ]]; then
 fi
 
 if [[ "${#databasePatchClasses[@]}" -gt 0 ]]; then
-  echo "${databasePatchClasses[@]}"
+  if [[ "${quiet}" == 1 ]]; then
+    echo "${databasePatchClasses[@]}"
+  else
+    printf "%s\n" "${databasePatchClasses[@]}"
+  fi
 fi

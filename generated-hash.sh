@@ -38,7 +38,7 @@ while getopts hq? option; do
 done
 
 if [[ "${quiet}" == 1 ]]; then
-  "${currentPath}/../core/script/web-server/all/quiet.sh" "${currentPath}/generated-hash/web-server.sh" -q
+  "${currentPath}/../core/script/run.sh" "webServer:single" "${currentPath}/generated-hash/web-server.sh" --quiet
 else
-  "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/generated-hash/web-server.sh"
+  "${currentPath}/../core/script/run.sh" "webServer:single" "${currentPath}/generated-hash/web-server.sh"
 fi

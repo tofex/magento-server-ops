@@ -51,26 +51,26 @@ magentoVersion=$("${currentPath}/../core/server/magento/version.sh")
 
 if [[ "${magentoVersion:0:1}" == 1 ]]; then
   if [[ -n "${memoryLimit}" ]]; then
-    "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh" \
-      -b "${phpExecutable}" \
-      -i "${memoryLimit}"
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+      --phpExecutable "${phpExecutable}" \
+      --memoryLimit "${memoryLimit}"
   else
-    "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh" \
-      -b "${phpExecutable}"
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+      --phpExecutable "${phpExecutable}"
   fi
 else
   if [[ "${force}" == 1 ]]; then
     if [[ -n "${memoryLimit}" ]]; then
-      "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-        -l "script:${currentPath}/generated-clean/web-server.sh" \
-        -b "${phpExecutable}" \
-        -i "${memoryLimit}"
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --memoryLimit "${memoryLimit}"
     else
-      "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-        -l "script:${currentPath}/generated-clean/web-server.sh" \
-        -b "${phpExecutable}"
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+        --phpExecutable "${phpExecutable}"
     fi
   else
     echo "Determining database changes"
@@ -84,15 +84,17 @@ else
       ( IFS=$'\n'; echo "${changes[*]}" )
 
       if [[ -n "${memoryLimit}" ]]; then
-        "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-          -l "script:${currentPath}/generated-clean/web-server.sh" \
-          -b "${phpExecutable}" \
-          -i "${memoryLimit}"
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+          --phpExecutable "${phpExecutable}" \
+          --memoryLimit "${memoryLimit}"
       else
-        "${currentPath}/../core/script/magento/web-server.sh" "${currentPath}/database-upgrade/magento.sh" \
-          -l "script:${currentPath}/generated-clean/web-server.sh" \
-          -b "${phpExecutable}"
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+          --phpExecutable "${phpExecutable}"
       fi
+
+      "${currentPath}/../core/script/run.sh" "webServer:single" "${currentPath}/database-schema-hash/web-server.sh" --save
     else
       echo "No changes found"
     fi

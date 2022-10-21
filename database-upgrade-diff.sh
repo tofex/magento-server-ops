@@ -50,7 +50,7 @@ done
 if [[ "${quiet}" == 0 ]]; then
   echo "Determining inactive modules in source"
 fi
-inactiveModuleNames=( $("${currentPath}/../core/script/web-server/single/quiet.sh" "${currentPath}/database-upgrade-diff/web-server-module-inactive.sh" -q) )
+inactiveModuleNames=( $("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/database-upgrade-diff/web-server-module-inactive.sh" --quiet) )
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#inactiveModuleNames[@]} inactive modules"
 fi
@@ -58,7 +58,7 @@ fi
 if [[ "${quiet}" == 0 ]]; then
   echo "Determining module versions in source"
 fi
-sourceCodeModules=( $("${currentPath}/../core/script/web-server/single/quiet.sh" "${currentPath}/database-upgrade-diff/web-server-module-source.sh" -q) )
+sourceCodeModules=( $("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/database-upgrade-diff/web-server-module-source.sh" --quiet) )
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#sourceCodeModules[@]} modules"
 fi
@@ -81,7 +81,7 @@ fi
 if [[ "${quiet}" == 0 ]]; then
   echo "Determining module versions in database"
 fi
-databaseModules=( $("${currentPath}/../core/script/database/single/quiet.sh" "${currentPath}/database-upgrade-diff/database-module-setup.sh" -q) )
+databaseModules=( $("${currentPath}/../core/script/run-quiet.sh" "database:single" "${currentPath}/database-upgrade-diff/database-module-setup.sh" --quiet) )
 if [[ "${quiet}" == 0 ]]; then
   echo "Found ${#databaseModules[@]} modules"
 fi
@@ -110,7 +110,7 @@ if [[ $(versionCompare "${magentoVersion}" "2.3.0") == 0 ]] || [[ $(versionCompa
   if [[ "${quiet}" == 0 ]]; then
     echo "Determining patches in source"
   fi
-  sourcePatchClasses=( $("${currentPath}/../core/script/web-server/single/quiet.sh" "${currentPath}/database-upgrade-diff/web-server-module-patch.sh" -q) )
+  sourcePatchClasses=( $("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/database-upgrade-diff/web-server-module-patch.sh" --quiet) )
   if [[ "${quiet}" == 0 ]]; then
     echo "Found ${#sourcePatchClasses[@]} patches"
   fi
@@ -142,7 +142,7 @@ if [[ $(versionCompare "${magentoVersion}" "2.3.0") == 0 ]] || [[ $(versionCompa
   if [[ "${quiet}" == 0 ]]; then
     echo "Determining patches in database"
   fi
-  databasePatchClasses=( $("${currentPath}/../core/script/database/single/quiet.sh" "${currentPath}/database-upgrade-diff/database-module-patch.sh" -q) )
+  databasePatchClasses=( $("${currentPath}/../core/script/run-quiet.sh" "database:single" "${currentPath}/database-upgrade-diff/database-module-patch.sh" --quiet) )
   if [[ "${quiet}" == 0 ]]; then
     echo "Found ${#databasePatchClasses[@]} patches"
   fi
@@ -164,5 +164,26 @@ if [[ $(versionCompare "${magentoVersion}" "2.3.0") == 0 ]] || [[ $(versionCompa
     else
       echo "Found no patch changes"
     fi
+  fi
+fi
+
+if [[ "${quiet}" == 0 ]]; then
+  echo "Determining database schema changes"
+fi
+currentDatabaseSchemaHash=$("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/database-upgrade-diff/web-server-database-schema-hash.sh" --quiet)
+if [[ "${quiet}" == 0 ]]; then
+  echo "Current database schema hash:"
+  echo "${currentDatabaseSchemaHash}"
+fi
+sourceDatabaseSchemaHash=$("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/database-schema-hash/web-server.sh" --quiet)
+if [[ "${quiet}" == 0 ]]; then
+  echo "Source database schema hash:"
+  echo "${sourceDatabaseSchemaHash}"
+fi
+if [[ "${currentDatabaseSchemaHash}" != "${sourceDatabaseSchemaHash}" ]]; then
+  echo "Found database schema changes"
+else
+  if [[ "${quiet}" == 0 ]]; then
+    echo "Found no database schema changes"
   fi
 fi

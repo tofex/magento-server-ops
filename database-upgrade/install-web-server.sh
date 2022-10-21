@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -22,11 +23,6 @@ Example: ${scriptName} -m 2.3.7 -w /var/www/magento/htdocs
 EOF
 }
 
-trim()
-{
-  echo -n "$1" | xargs
-}
-
 magentoVersion=
 webPath=
 webUser=
@@ -35,30 +31,11 @@ generatedCleanScript=
 phpExecutable=
 memoryLimit=
 
-while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:l:b:i:? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    m) magentoVersion=$(trim "$OPTARG");;
-    e) ;;
-    d) ;;
-    r) ;;
-    c) ;;
-    n) ;;
-    w) webPath=$(trim "$OPTARG");;
-    u) webUser=$(trim "$OPTARG");;
-    g) webGroup=$(trim "$OPTARG");;
-    t) ;;
-    v) ;;
-    p) ;;
-    z) ;;
-    x) ;;
-    y) ;;
-    l) generatedCleanScript=$(trim "$OPTARG");;
-    b) phpExecutable=$(trim "$OPTARG");;
-    i) memoryLimit=$(trim "$OPTARG");;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${magentoVersion}" ]]; then
   echo "No Magento version specified!"

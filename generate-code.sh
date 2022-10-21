@@ -16,6 +16,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
+  -b  PHP executable (optional)
   -i  Memory limit (optional)
   -f  Force (optional)
 
@@ -28,40 +29,50 @@ trim()
   echo -n "$1" | xargs
 }
 
+phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hi:f? option; do
+while getopts hb:i:f? option; do
   case "${option}" in
     h) usage; exit 1;;
+    b) phpExecutable=$(trim "$OPTARG");;
     i) memoryLimit=$(trim "$OPTARG");;
     f) force=1;;
     ?) usage; exit 1;;
   esac
 done
 
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
+
 if [[ -n "${memoryLimit}" ]]; then
   if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-code/magento.sh" \
-      -a "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      -i "${memoryLimit}" \
-      -f
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+      --phpExecutable "${phpExecutable}" \
+      --memoryLimit "${memoryLimit}" \
+      --force
   else
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-code/magento.sh" \
-      -a "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      -i "${memoryLimit}"
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+      --phpExecutable "${phpExecutable}" \
+      --memoryLimit "${memoryLimit}"
   fi
 else
   if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-code/magento.sh" \
-      -a "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      -f
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+      --phpExecutable "${phpExecutable}" \
+      --force
   else
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-code/magento.sh" \
-      -a "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      -l "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh"
+    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+      --phpExecutable "${phpExecutable}"
   fi
 fi

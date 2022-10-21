@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -9,23 +10,20 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -m  Magento version
-  -w  Path of deployment
-  -u  Web user (optional)
-  -g  Web group (optional)
-  -a  Generated hash script
-  -l  Generated code clean script
-  -b  PHP executable (optional)
-  -i  Memory limit (optional)
+  --help                  Show this message
+  --magentoVersion        Magento version
+  --webServerServerName   Name of web server
+  --webPath               Path of deployment
+  --webUser               Web user (optional)
+  --webGroup              Web group (optional)
+  --generatedHashScript   Generated hash script
+  --generatedCleanScript  Generated code clean script
+  --phpExecutable         PHP executable (optional)
+  --memoryLimit           Memory limit (optional)
+  --force                 Force generating (optional)
 
-Example: ${scriptName} -m 2.3.7 -w /var/www/magento/htdocs
+Example: ${scriptName} --magentoVersion 2.3.7 --webServerServerName webserver --webPath /var/www/magento/htdocs
 EOF
-}
-
-trim()
-{
-  echo -n "$1" | xargs
 }
 
 versionCompare() {
@@ -39,41 +37,21 @@ versionCompare() {
 }
 
 magentoVersion=
-serverName=
+webServerServerName=
 webPath=
 webUser=
 webGroup=
+generatedHashScript=
 generatedCleanScript=
 phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:a:l:b:i:f? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    m) magentoVersion=$(trim "$OPTARG");;
-    e) ;;
-    d) ;;
-    r) ;;
-    c) ;;
-    n) serverName=$(trim "$OPTARG");;
-    w) webPath=$(trim "$OPTARG");;
-    u) webUser=$(trim "$OPTARG");;
-    g) webGroup=$(trim "$OPTARG");;
-    t) ;;
-    v) ;;
-    p) ;;
-    z) ;;
-    x) ;;
-    y) ;;
-    a) generatedHashScript=$(trim "$OPTARG");;
-    l) generatedCleanScript=$(trim "$OPTARG");;
-    b) phpExecutable=$(trim "$OPTARG");;
-    i) memoryLimit=$(trim "$OPTARG");;
-    f) force=1;;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
 
 if [[ -z "${magentoVersion}" ]]; then
   echo "No Magento version specified!"
@@ -86,8 +64,8 @@ if [[ "${magentoVersion:0:1}" == 1 ]]; then
   exit 0
 fi
 
-if [[ -z "${serverName}" ]]; then
-  echo "No server name specified!"
+if [[ -z "${webServerServerName}" ]]; then
+  echo "No web server name specified!"
   usage
   exit 1
 fi
@@ -136,11 +114,11 @@ if [[ "${magentoVersion:0:1}" == 1 ]]; then
 else
   echo "Determining generated files hash in path: ${webPath}"
   generatedHash=$("${generatedHashScript}" \
-    -n "${serverName}" \
-    -w "${webPath}" \
-    -u "${webUser}" \
-    -g "${webGroup}" \
-    -q)
+    --webServerServerName "${webServerServerName}" \
+    --webPath "${webPath}" \
+    --webUser "${webUser}" \
+    --webGroup "${webGroup}" \
+    --quiet)
 
   if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
     generateRequired=0
