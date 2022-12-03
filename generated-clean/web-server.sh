@@ -87,9 +87,9 @@ if [[ -d var/generation/ ]]; then
   if [[ "${generatedFiles}" -gt 0 ]]; then
     echo "Removing generated code files"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      sudo -H -u "${webUser}" bash -c "rm -rf var/generation/*"
+      sudo -H -u "${webUser}" bash -c "rm -rf var/generation/* || rm -rf var/generation/*"
     else
-      rm -rf var/generation/*
+      rm -rf var/generation/* || rm -rf var/generation/*
     fi
   fi
 fi
@@ -99,9 +99,9 @@ if [[ -d generated/code/ ]]; then
   if [[ "${generatedFiles}" -gt 0 ]]; then
     echo "Removing generated code files"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-      sudo -H -u "${webUser}" bash -c "rm -rf generated/code/*"
+      sudo -H -u "${webUser}" bash -c "rm -rf generated/code/* || rm -rf generated/code/*"
     else
-      rm -rf generated/code/*
+      rm -rf generated/code/* || rm -rf generated/code/*
     fi
   fi
 fi
