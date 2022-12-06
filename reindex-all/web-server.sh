@@ -15,6 +15,8 @@ OPTIONS:
   --webPath         Web path of Magento installation
   --webUser         Web user (optional)
   --webGroup        Web group (optional)
+  --phpExecutable   PHP executable (optional)
+  --memoryLimit     Memory limit (optional)
 
 Example: ${scriptName} --webPath /var/www/magento/htdocs
 EOF
@@ -24,6 +26,8 @@ magentoVersion=
 webPath=
 webUser=
 webGroup=
+phpExecutable=
+memoryLimit=
 
 if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
   source "${currentPath}/../../core/prepare-parameters.sh"
@@ -58,18 +62,39 @@ if [[ -z "${webGroup}" ]]; then
   webGroup="${currentGroup}"
 fi
 
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
+
 cd "${webPath}"
 
-if [[ "${magentoVersion:0:1}" == 1 ]]; then
-  if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "php shell/indexer.php reindexall"
-  else
-    php shell/indexer.php reindexall
+if [[ -n "${memoryLimit}" ]]; then
+  echo "Using memory limit: ${memoryLimit}"
+  if [[ "${magentoVersion:0:1}" == 1 ]]; then
+    if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+      sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit}  shell/indexer.php reindexall"
+    else
+      "${phpExecutable}" -dmemory_limit="${memoryLimit}" shell/indexer.php reindexall
+    fi
+  elif [[ "${magentoVersion:0:1}" == 2 ]]; then
+    if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+      sudo -H -u "${webUser}" bash -c "${phpExecutable} -dmemory_limit=${memoryLimit}  bin/magento indexer:reindex"
+    else
+      "${phpExecutable}" -dmemory_limit="${memoryLimit}" bin/magento indexer:reindex
+    fi
   fi
-elif [[ "${magentoVersion:0:1}" == 2 ]]; then
-  if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-    sudo -H -u "${webUser}" bash -c "bin/magento indexer:reindex"
-  else
-    bin/magento indexer:reindex
+else
+  if [[ "${magentoVersion:0:1}" == 1 ]]; then
+    if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+      sudo -H -u "${webUser}" bash -c "${phpExecutable} shell/indexer.php reindexall"
+    else
+      "${phpExecutable}" shell/indexer.php reindexall
+    fi
+  elif [[ "${magentoVersion:0:1}" == 2 ]]; then
+    if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
+      sudo -H -u "${webUser}" bash -c "${phpExecutable} bin/magento indexer:reindex"
+    else
+      "${phpExecutable}" bin/magento indexer:reindex
+    fi
   fi
 fi

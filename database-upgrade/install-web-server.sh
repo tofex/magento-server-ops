@@ -10,14 +10,14 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -m  Magento version
-  -w  Web path
-  -u  Web user (optional)
-  -g  Web group (optional)
-  -l  Generated code clean script
-  -b  PHP executable (optional)
-  -i  Memory limit (optional)
+  --help                  Show this message
+  --magentoVersion        Magento version
+  --webPath               Web path
+  --webUser               Web user (optional)
+  --webGroup              Web group (optional)
+  --generatedCleanScript  Generated code clean script
+  --phpExecutable         PHP executable (optional)
+  --memoryLimit           Memory limit (optional)
 
 Example: ${scriptName} -m 2.3.7 -w /var/www/magento/htdocs
 EOF

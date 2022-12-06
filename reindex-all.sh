@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+scriptName="${0##*/}"
 scriptPath="${BASH_SOURCE[0]}"
 
 if [[ -L "${scriptPath}" ]]; then
@@ -8,4 +9,46 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-"${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh"
+usage()
+{
+cat >&2 << EOF
+usage: ${scriptName} options
+
+OPTIONS:
+  -h  Show this message
+  -b  PHP executable (optional)
+  -i  Memory limit (optional)
+
+Example: ${scriptName}
+EOF
+}
+
+trim()
+{
+  echo -n "$1" | xargs
+}
+
+phpExecutable=
+memoryLimit=
+
+while getopts hb:i:? option; do
+  case "${option}" in
+    h) usage; exit 1;;
+    b) phpExecutable=$(trim "$OPTARG");;
+    i) memoryLimit=$(trim "$OPTARG");;
+    ?) usage; exit 1;;
+  esac
+done
+
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
+
+if [[ -n "${memoryLimit}" ]]; then
+  "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
+    --phpExecutable "${phpExecutable}" \
+    --memoryLimit "${memoryLimit}"
+else
+  "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
+    --phpExecutable "${phpExecutable}"
+fi
