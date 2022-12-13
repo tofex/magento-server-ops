@@ -53,7 +53,12 @@ currentUser="$(whoami)"
 if [[ -z "${webUser}" ]]; then
   webUser="${currentUser}"
 fi
-currentGroup="$(id -g -n)"
+
+if [[ $(which id 2>/dev/null | wc -l) -gt 0 ]]; then
+  currentGroup=$(id -g -n)
+else
+  currentGroup=$(grep -qe "^${currentUser}:" /etc/passwd && grep -e ":$(grep -e "^${currentUser}:" /etc/passwd | awk -F: '{print $4}'):" /etc/group | awk -F: '{print $1}' || echo "")
+fi
 if [[ -z "${webGroup}" ]]; then
   webGroup="${currentGroup}"
 fi
