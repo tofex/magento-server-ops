@@ -28,42 +28,80 @@ trim()
   echo -n "$1" | xargs
 }
 
+phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hm:f? option; do
+while getopts hb:m:f? option; do
   case ${option} in
     h) usage; exit 1;;
+    b) phpExecutable=$(trim "$OPTARG");;
     m) memoryLimit=$(trim "$OPTARG");;
     f) force=1;;
     ?) usage; exit 1;;
   esac
 done
 
-if [[ -n "${memoryLimit}" ]]; then
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/generate-code.sh" -m "${memoryLimit}" -f
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
+
+if [[ -n "${phpExecutable}" ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -m "${memoryLimit}" -f
+    else
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -m "${memoryLimit}"
+    fi
   else
-    "${currentPath}/generate-code.sh" -m "${memoryLimit}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -f
+    else
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}"
+    fi
   fi
 else
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/generate-code.sh" -f
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-code.sh" -m "${memoryLimit}" -f
+    else
+      "${currentPath}/generate-code.sh" -m "${memoryLimit}"
+    fi
   else
-    "${currentPath}/generate-code.sh"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-code.sh" -f
+    else
+      "${currentPath}/generate-code.sh"
+    fi
   fi
 fi
 
-if [[ -n "${memoryLimit}" ]]; then
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/generate-static.sh" -m "${memoryLimit}" -f
+if [[ -n "${phpExecutable}" ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-static.sh" -m "${memoryLimit}" -f
+    else
+      "${currentPath}/generate-static.sh" -m "${memoryLimit}"
+    fi
   else
-    "${currentPath}/generate-static.sh" -m "${memoryLimit}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-static.sh" -f
+    else
+      "${currentPath}/generate-static.sh"
+    fi
   fi
 else
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/generate-static.sh" -f
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-static.sh" -m "${memoryLimit}" -f
+    else
+      "${currentPath}/generate-static.sh" -m "${memoryLimit}"
+    fi
   else
-    "${currentPath}/generate-static.sh"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/generate-static.sh" -f
+    else
+      "${currentPath}/generate-static.sh"
+    fi
   fi
 fi

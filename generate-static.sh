@@ -16,6 +16,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
+  -b  PHP executable (optional)
   -i  Memory limit (optional)
   -f  Force (optional)
 
@@ -28,17 +29,23 @@ trim()
   echo -n "$1" | xargs
 }
 
+phpExecutable=
 memoryLimit=
 force=0
 
-while getopts hi:f? option; do
+while getopts hb:i:f? option; do
   case "${option}" in
     h) usage; exit 1;;
+    b) phpExecutable=$(trim "$OPTARG");;
     i) memoryLimit=$(trim "$OPTARG");;
     f) force=1;;
     ?) usage; exit 1;;
   esac
 done
+
+if [[ -z "${phpExecutable}" ]]; then
+  phpExecutable="php"
+fi
 
 echo "Determining required locales"
 backendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-backend-locales.sh" -q) )
@@ -65,6 +72,7 @@ if [[ -n "${memoryLimit}" ]]; then
       -s "${frontendThemes}" \
       -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
       -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+      -b "${phpExecutable}" \
       -i "${memoryLimit}" \
       -f
   else
@@ -75,6 +83,7 @@ if [[ -n "${memoryLimit}" ]]; then
       -s "${frontendThemes}" \
       -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
       -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+      -b "${phpExecutable}" \
       -i "${memoryLimit}"
   fi
 else
@@ -86,6 +95,7 @@ else
       -s "${frontendThemes}" \
       -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
       -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+      -b "${phpExecutable}" \
       -f
   else
     "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-static/magento.sh" \
@@ -94,6 +104,7 @@ else
       -o "${frontendLocales}" \
       -s "${frontendThemes}" \
       -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
-      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh"
+      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+      -b "${phpExecutable}"
   fi
 fi
