@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+scriptName="${0##*/}"
 scriptPath="${BASH_SOURCE[0]}"
 
 if [[ -L "${scriptPath}" ]]; then
@@ -8,4 +9,19 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-"${currentPath}/../core/script/web-server/all.sh" "${currentPath}/image-cache-clean/web-server.sh"
+usage()
+{
+cat >&2 << EOF
+
+usage: ${scriptName} options
+
+OPTIONS:
+  --help  Show this message
+
+Example: ${scriptName} --webPath /var/www/magento/htdocs
+EOF
+}
+
+source "${currentPath}/../core/prepare-parameters.sh"
+
+"${currentPath}/../core/script/run.sh" "webServer:all" "${currentPath}/image-cache-clean/web-server.sh"
