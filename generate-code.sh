@@ -43,36 +43,60 @@ while getopts hb:i:f? option; do
   esac
 done
 
-if [[ -z "${phpExecutable}" ]]; then
-  phpExecutable="php"
-fi
-
-if [[ -n "${memoryLimit}" ]]; then
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
-      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      --phpExecutable "${phpExecutable}" \
-      --memoryLimit "${memoryLimit}" \
-      --force
+if [[ -n "${phpExecutable}" ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --memoryLimit "${memoryLimit}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --memoryLimit "${memoryLimit}"
+    fi
   else
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
-      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      --phpExecutable "${phpExecutable}" \
-      --memoryLimit "${memoryLimit}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --phpExecutable "${phpExecutable}"
+    fi
   fi
 else
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
-      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      --phpExecutable "${phpExecutable}" \
-      --force
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --memoryLimit "${memoryLimit}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --memoryLimit "${memoryLimit}"
+    fi
   else
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
-      --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
-      --phpExecutable "${phpExecutable}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/generate-code/install-web-server.sh" \
+        --generatedHashScript "script:${currentPath}/generated-hash/web-server.sh:generated-hash.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh:generated-clean.sh"
+    fi
   fi
 fi

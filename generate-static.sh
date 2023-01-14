@@ -43,10 +43,6 @@ while getopts hb:i:f? option; do
   esac
 done
 
-if [[ -z "${phpExecutable}" ]]; then
-  phpExecutable="php"
-fi
-
 echo "Determining required locales"
 backendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-backend-locales.sh" -q) )
 backendLocales=$(IFS=, ; echo "${backendLocaleList[*]}")
@@ -63,48 +59,92 @@ echo "Determining frontend themes"
 frontendThemeList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-frontend-themes.sh" -q) )
 frontendThemes=$(IFS=, ; echo "${frontendThemeList[*]}")
 
-if [[ -n "${memoryLimit}" ]]; then
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-static/magento.sh" \
-      -j "${backendLocales}" \
-      -k "${backendThemes}" \
-      -o "${frontendLocales}" \
-      -s "${frontendThemes}" \
-      -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
-      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
-      -b "${phpExecutable}" \
-      -i "${memoryLimit}" \
-      -f
+if [[ -n "${phpExecutable}" ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --memoryLimit "${memoryLimit}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --memoryLimit "${memoryLimit}"
+    fi
   else
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-static/magento.sh" \
-      -j "${backendLocales}" \
-      -k "${backendThemes}" \
-      -o "${frontendLocales}" \
-      -s "${frontendThemes}" \
-      -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
-      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
-      -b "${phpExecutable}" \
-      -i "${memoryLimit}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --phpExecutable "${phpExecutable}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --phpExecutable "${phpExecutable}"
+    fi
   fi
 else
-  if [[ "${force}" == 1 ]]; then
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-static/magento.sh" \
-      -j "${backendLocales}" \
-      -k "${backendThemes}" \
-      -o "${frontendLocales}" \
-      -s "${frontendThemes}" \
-      -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
-      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
-      -b "${phpExecutable}" \
-      -f
+  if [[ -n "${memoryLimit}" ]]; then
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --memoryLimit "${memoryLimit}" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --memoryLimit "${memoryLimit}"
+    fi
   else
-    "${currentPath}/../core/script/magento/web-servers.sh" "${currentPath}/generate-static/magento.sh" \
-      -j "${backendLocales}" \
-      -k "${backendThemes}" \
-      -o "${frontendLocales}" \
-      -s "${frontendThemes}" \
-      -a "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
-      -l "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
-      -b "${phpExecutable}"
+    if [[ "${force}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh" \
+        --force
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:all" "${currentPath}/generate-static/magento.sh" \
+        --backendLocales "${backendLocales}" \
+        --backendThemes "${backendThemes}" \
+        --frontendLocales "${frontendLocales}" \
+        --frontendThemes "${frontendThemes}" \
+        --staticHashScript "script:${currentPath}/static-hash/web-server.sh:static-hash.sh" \
+        --staticCleanScript "script:${currentPath}/static-clean/web-server.sh:static-clean.sh"
+    fi
   fi
 fi

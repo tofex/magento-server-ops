@@ -16,6 +16,7 @@ usage: ${scriptName} options
 
 OPTIONS:
   -h  Show this message
+  -b  PHP executable (optional)
   -m  Memory limit (optional)
   -f  Force (optional)
 
@@ -41,10 +42,6 @@ while getopts hb:m:f? option; do
     ?) usage; exit 1;;
   esac
 done
-
-if [[ -z "${phpExecutable}" ]]; then
-  phpExecutable="php"
-fi
 
 if [[ -n "${phpExecutable}" ]]; then
   if [[ -n "${memoryLimit}" ]]; then
