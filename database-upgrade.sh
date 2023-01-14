@@ -43,25 +43,10 @@ while getopts hb:i:f? option; do
   esac
 done
 
-if [[ -z "${phpExecutable}" ]]; then
-  phpExecutable="php"
-fi
-
 magentoVersion=$("${currentPath}/../core/server/magento/version.sh")
 
 if [[ "${magentoVersion:0:1}" == 1 ]]; then
-  if [[ -n "${memoryLimit}" ]]; then
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
-      --phpExecutable "${phpExecutable}" \
-      --memoryLimit "${memoryLimit}"
-  else
-    "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
-      --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
-      --phpExecutable "${phpExecutable}"
-  fi
-else
-  if [[ "${force}" == 1 ]]; then
+  if [[ -n "${phpExecutable}" ]]; then
     if [[ -n "${memoryLimit}" ]]; then
       "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
         --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
@@ -71,6 +56,39 @@ else
       "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
         --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
         --phpExecutable "${phpExecutable}"
+    fi
+  else
+    if [[ -n "${memoryLimit}" ]]; then
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+        --memoryLimit "${memoryLimit}"
+    else
+      "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+        --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh"
+    fi
+  fi
+else
+  if [[ "${force}" == 1 ]]; then
+    if [[ -n "${phpExecutable}" ]]; then
+      if [[ -n "${memoryLimit}" ]]; then
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+          --phpExecutable "${phpExecutable}" \
+          --memoryLimit "${memoryLimit}"
+      else
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+          --phpExecutable "${phpExecutable}"
+      fi
+    else
+      if [[ -n "${memoryLimit}" ]]; then
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+          --memoryLimit "${memoryLimit}"
+      else
+        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh"
+      fi
     fi
   else
     echo "Determining database changes"
@@ -83,15 +101,26 @@ else
     if [[ "${#changes[@]}" -gt 0 ]]; then
       ( IFS=$'\n'; echo "${changes[*]}" )
 
-      if [[ -n "${memoryLimit}" ]]; then
-        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
-          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
-          --phpExecutable "${phpExecutable}" \
-          --memoryLimit "${memoryLimit}"
+      if [[ -n "${phpExecutable}" ]]; then
+        if [[ -n "${memoryLimit}" ]]; then
+          "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+            --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+            --phpExecutable "${phpExecutable}" \
+            --memoryLimit "${memoryLimit}"
+        else
+          "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+            --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+            --phpExecutable "${phpExecutable}"
+        fi
       else
-        "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
-          --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
-          --phpExecutable "${phpExecutable}"
+        if [[ -n "${memoryLimit}" ]]; then
+          "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+            --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh" \
+            --memoryLimit "${memoryLimit}"
+        else
+          "${currentPath}/../core/script/run.sh" "install,webServer:single" "${currentPath}/database-upgrade/install-web-server.sh" \
+            --generatedCleanScript "script:${currentPath}/generated-clean/web-server.sh"
+        fi
       fi
 
       "${currentPath}/../core/script/run.sh" "webServer:single" "${currentPath}/database-schema-hash/web-server.sh" --save
