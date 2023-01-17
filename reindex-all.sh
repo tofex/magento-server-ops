@@ -40,15 +40,20 @@ while getopts hb:i:? option; do
   esac
 done
 
-if [[ -z "${phpExecutable}" ]]; then
-  phpExecutable="php"
-fi
-
-if [[ -n "${memoryLimit}" ]]; then
-  "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
-    --phpExecutable "${phpExecutable}" \
-    --memoryLimit "${memoryLimit}"
+if [[ -n "${phpExecutable}" ]]; then
+  if [[ -n "${memoryLimit}" ]]; then
+    "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
+      --phpExecutable "${phpExecutable}" \
+      --memoryLimit "${memoryLimit}"
+  else
+    "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
+      --phpExecutable "${phpExecutable}"
+  fi
 else
-  "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
-    --phpExecutable "${phpExecutable}"
+  if [[ -n "${memoryLimit}" ]]; then
+    "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \
+      --memoryLimit "${memoryLimit}"
+  else
+    "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh"
+  fi
 fi
