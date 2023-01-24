@@ -8,4 +8,4 @@ fi
 
 currentPath="$( cd "$( dirname "${scriptPath}" )" && pwd )"
 
-"${currentPath}/../core/script/web-server/all.sh" "${currentPath}/maintenance-end/web-server.sh"
+"${currentPath}/../core/script/run.sh" "webServer:single" "${currentPath}/maintenance-end/web-server.sh"
