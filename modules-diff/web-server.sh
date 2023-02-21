@@ -90,9 +90,9 @@ if [[ "${quiet}" == 0 ]]; then
 fi
 rm -rf /tmp/modules-configured.list
 if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
-  sudo -H -u "${webUser}" bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
+  sudo -H -u "${webUser}" bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n | grep -v \"^Magento_ComposerRootUpdatePlugin\" > /tmp/modules-configured.list"
 else
-  bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n > /tmp/modules-configured.list"
+  bash -c "${phpExecutable} -r \"\\\$config=include 'app/etc/config.php'; foreach (array_keys(\\\$config['modules']) as \\\$moduleName) {echo \\\"\\\$moduleName\n\\\";}\" | sort -n | grep -v \"^Magento_ComposerRootUpdatePlugin\" > /tmp/modules-configured.list"
 fi
 
 if [[ "${quiet}" == 0 ]]; then
