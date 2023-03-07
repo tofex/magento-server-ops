@@ -189,8 +189,10 @@ else
       -g "${webGroup}"
 
     if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
-      readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
-      readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+      #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+      IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
+      #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+      IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
       localeList=( "${backendLocaleList[@]}" "${frontendLocaleList[@]}" )
       localeList=( $(echo "${localeList[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ') )
 
@@ -217,10 +219,14 @@ else
         fi
       fi
     else
-      readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
-      readarray -d , -t backendThemeList < <(printf '%s' "${backendThemes}")
-      readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
-      readarray -d , -t frontendThemeList < <(printf '%s' "${frontendThemes}")
+      #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+      IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
+      #readarray -d , -t backendThemeList < <(printf '%s' "${backendThemes}")
+      IFS=, read -d "" -r -a backendThemeList < <(printf '%s' "${backendThemes}") || echo -n ""
+      #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+      IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
+      #readarray -d , -t frontendThemeList < <(printf '%s' "${frontendThemes}")
+      IFS=, read -d "" -r -a frontendThemeList < <(printf '%s' "${frontendThemes}") || echo -n ""
 
       backendCommand="bin/magento setup:static-content:deploy"
       for backendLocale in "${backendLocaleList[@]}"; do
