@@ -46,9 +46,9 @@ done
 if [[ -n "${phpExecutable}" ]]; then
   if [[ -n "${memoryLimit}" ]]; then
     if [[ "${force}" == 1 ]]; then
-      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -m "${memoryLimit}" -f
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -i "${memoryLimit}" -f
     else
-      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -m "${memoryLimit}"
+      "${currentPath}/generate-code.sh" -b "${phpExecutable}" -i "${memoryLimit}"
     fi
   else
     if [[ "${force}" == 1 ]]; then
@@ -60,9 +60,9 @@ if [[ -n "${phpExecutable}" ]]; then
 else
   if [[ -n "${memoryLimit}" ]]; then
     if [[ "${force}" == 1 ]]; then
-      "${currentPath}/generate-code.sh" -m "${memoryLimit}" -f
+      "${currentPath}/generate-code.sh" -i "${memoryLimit}" -f
     else
-      "${currentPath}/generate-code.sh" -m "${memoryLimit}"
+      "${currentPath}/generate-code.sh" -i "${memoryLimit}"
     fi
   else
     if [[ "${force}" == 1 ]]; then
@@ -76,23 +76,23 @@ fi
 if [[ -n "${phpExecutable}" ]]; then
   if [[ -n "${memoryLimit}" ]]; then
     if [[ "${force}" == 1 ]]; then
-      "${currentPath}/generate-static.sh" -m "${memoryLimit}" -f
+      "${currentPath}/generate-static.sh" -b "${phpExecutable}" -i "${memoryLimit}" -f
     else
-      "${currentPath}/generate-static.sh" -m "${memoryLimit}"
+      "${currentPath}/generate-static.sh" -b "${phpExecutable}" -i "${memoryLimit}"
     fi
   else
     if [[ "${force}" == 1 ]]; then
-      "${currentPath}/generate-static.sh" -f
+      "${currentPath}/generate-static.sh" -b "${phpExecutable}" -f
     else
-      "${currentPath}/generate-static.sh"
+      "${currentPath}/generate-static.sh" -b "${phpExecutable}"
     fi
   fi
 else
   if [[ -n "${memoryLimit}" ]]; then
     if [[ "${force}" == 1 ]]; then
-      "${currentPath}/generate-static.sh" -m "${memoryLimit}" -f
+      "${currentPath}/generate-static.sh" -i "${memoryLimit}" -f
     else
-      "${currentPath}/generate-static.sh" -m "${memoryLimit}"
+      "${currentPath}/generate-static.sh" -i "${memoryLimit}"
     fi
   else
     if [[ "${force}" == 1 ]]; then
