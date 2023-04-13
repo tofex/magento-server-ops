@@ -15,7 +15,7 @@ OPTIONS:
   -u  User name
   -s  Password
   -b  Database name
-  -q  Quiet
+  -q  Quiet (optional)
 
 Example: ${scriptName} -m 2.3.7 -u magento_user -p magento_pass -b magento_db
 EOF

@@ -43,7 +43,7 @@ while getopts hb:i:f? option; do
   esac
 done
 
-echo "Determining required locales"
+echo "Determining required backend locales"
 backendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-backend-locales.sh" -q) )
 backendLocales=$(IFS=, ; echo "${backendLocaleList[*]}")
 
@@ -52,7 +52,12 @@ backendThemeList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "
 backendThemes=$(IFS=, ; echo "${backendThemeList[*]}")
 
 echo "Determining required frontend locales"
-frontendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-frontend-locales.sh" -q) )
+databaseFrontendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-frontend-locales.sh" -q) )
+webServerFrontendLocaleList=( $("${currentPath}/../core/script/magento/web-server/quiet.sh" "${currentPath}/generate-static/web-server-frontend-locales.sh" -q) )
+oldIFS="${IFS}"
+IFS=$'\n'
+frontendLocaleList=($(for locale in "${databaseFrontendLocaleList[@]}" "${webServerFrontendLocaleList[@]}"; do echo "${locale}"; done | sort -du))
+IFS="${oldIFS}"
 frontendLocales=$(IFS=, ; echo "${frontendLocaleList[*]}")
 
 echo "Determining frontend themes"
