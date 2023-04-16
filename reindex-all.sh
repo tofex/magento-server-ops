@@ -40,7 +40,7 @@ while getopts hb:i:? option; do
   esac
 done
 
-"${currentPath}/../core/script/run.sh" "install,database" "${currentPath}/reindex-all/web-server.sh"
+"${currentPath}/../core/script/run.sh" "install,database" "${currentPath}/reindex-all/database.sh"
 
 if [[ -n "${phpExecutable}" ]]; then
   if [[ -n "${memoryLimit}" ]]; then
