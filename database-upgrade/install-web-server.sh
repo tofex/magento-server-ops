@@ -23,6 +23,16 @@ Example: ${scriptName} -m 2.3.7 -w /var/www/magento/htdocs
 EOF
 }
 
+versionCompare() {
+  if [[ "$1" == "$2" ]]; then
+    echo "0"
+  elif [[ "$1" = $(echo -e "$1\n$2" | sort -V | head -n1) ]]; then
+    echo "1"
+  else
+    echo "2"
+  fi
+}
+
 magentoVersion=
 webPath=
 webUser=
@@ -43,8 +53,13 @@ if [[ -z "${magentoVersion}" ]]; then
   exit 1
 fi
 
-if [[ "${magentoVersion:0:1}" == 1 ]]; then
-  echo "No preparing for Magento 1 required"
+if [[ $(versionCompare "${magentoVersion}" "2.0.0") == 1 ]]; then
+  echo "No upgrade for Magento 1 required"
+  exit 0
+fi
+
+if [[ $(versionCompare "${magentoVersion}" "19.1.0") == 0 ]] || [[ $(versionCompare "${magentoVersion}" "19.1.0") == 2 ]]; then
+  echo "No upgrade for OpenMage required"
   exit 0
 fi
 
