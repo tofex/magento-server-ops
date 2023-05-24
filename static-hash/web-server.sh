@@ -83,7 +83,7 @@ fi
 fileTypes=( css eot gif htc htm html ico jpg js less map otf png sass svg swf ttf webp woff woff2 )
 excludePaths=( "./dev/*" "./pub/*" "./setup/*" "./status/*" "./update/*" "./vendor/astock/stock-api-libphp/test/*" "./vendor/astock/stock-api-libphp/test/*" "./vendor/braintree/braintree_php/tests/*" "./vendor/codeception/codeception/tests/*" "./vendor/container-interop/container-interop/docs/*" "./vendor/endroid/qr-code/assets/*" "./vendor/google/recaptcha/examples/*" "./vendor/guzzlehttp/ringphp/tests/*" "./vendor/magento/magento2-base/dev/tests/*" "./vendor/magento/module-catalog-import-export/Test/*" "./vendor/magento/magento2-functional-testing-framework/*" "./vendor/phpunit/php-code-coverage/*" "./vendor/squizlabs/php_codesniffer/*" "./vendor/tofex/jokkedk-webgrind/*" "./vendor/tubalmartin/cssmin/tests/*" "./vendor/zendframework/zend-config/doc/*" "./vendor/zendframework/zend-crypt/doc/*" "./vendor/zendframework/zend-di/doc/*" "./vendor/zendframework/zend-soap/doc/*" )
 
-hashCommand="find . -type f \( -path */i18n/*"
+hashCommand="find . -type f \( -path '*/i18n/*'"
 
 for fileType in "${fileTypes[@]}"; do
   hashCommand="${hashCommand} -o -iname '*.${fileType}'"
