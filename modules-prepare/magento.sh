@@ -135,7 +135,7 @@ if [[ -z "${phpExecutable}" ]]; then
   phpExecutable="php"
 fi
 
-echo "Checking missing modules in webPath: ${webPath}"
+echo "Checking missing modules in web path: ${webPath}"
 missingModules=( $("${moduleDiffScript}" \
   -w "${webPath}" \
   -u "${webUser}" \
