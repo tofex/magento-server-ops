@@ -156,7 +156,7 @@ else
   echo "No missing modules to remove"
 fi
 
-echo "Checking unknown modules in webPath: ${webPath}"
+echo "Checking unknown modules in web path: ${webPath}"
 unknownModules=( $("${moduleDiffScript}" \
   -w "${webPath}" \
   -u "${webUser}" \
