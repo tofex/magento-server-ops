@@ -84,12 +84,18 @@ fi
 
 webRoot=$(dirname "${webPath}")
 
-if [[ "${revert}" == 0 ]]; then
-  addLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
-  echo "Adding link: ${addLink} to deployment"
-  ini-set "${envPropertyFile}" "no" "${serverName}" "link" "${addLink}"
+webPathFileName="${webPath}/${fileName}"
+
+if [[ $(mount | grep "${webPathFileName}" | wc -l) -gt 0 ]]; then
+  echo "${webPathFileName} is mounted"
 else
-  removeLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
-  echo "Removing link: ${removeLink} from deployment"
-  ini-del "${envPropertyFile}" "${serverName}" "link" "${removeLink}"
+  if [[ "${revert}" == 0 ]]; then
+    addLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
+    echo "Adding link: ${addLink} to deployment"
+    ini-set "${envPropertyFile}" "no" "${serverName}" "link" "${addLink}"
+  else
+    removeLink="${webRoot}/${sharedPath}/${fileName}:${fileName}"
+    echo "Removing link: ${removeLink} from deployment"
+    ini-del "${envPropertyFile}" "${serverName}" "link" "${removeLink}"
+  fi
 fi

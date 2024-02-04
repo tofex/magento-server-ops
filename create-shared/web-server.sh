@@ -114,7 +114,9 @@ if [[ "${revert}" == 0 ]]; then
     set -e
   fi
 
-  if [[ -L "${webPathFileName}" ]]; then
+  if [[ $(mount | grep "${webPathFileName}" | wc -l) -gt 0 ]]; then
+    echo "${webPathFileName} is mounted"
+  elif [[ -L "${webPathFileName}" ]]; then
     echo "${webPathFileName} is already a symlink"
   else
     if [[ -e "${sharedPathFileName}" ]] && [[ "${overwrite}" == 1 ]]; then
@@ -147,7 +149,9 @@ if [[ "${revert}" == 0 ]]; then
     fi
   fi
 else
-  if [[ -L "${webPathFileName}" ]]; then
+  if [[ $(mount | grep "${webPathFileName}" | wc -l) -gt 0 ]]; then
+    echo "${webPathFileName} is mounted"
+  elif [[ -L "${webPathFileName}" ]]; then
     echo "Removing symlink at: ${webPathFileName}"
     if [[ "${webUser}" != "${currentUser}" ]] || [[ "${webGroup}" != "${currentGroup}" ]]; then
       sudo -H -u "${webUser}" bash -c "rm ${webPathFileName}"
