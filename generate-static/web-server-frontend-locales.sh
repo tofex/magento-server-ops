@@ -24,9 +24,10 @@ trim()
 
 magentoVersion=
 webPath=
+environment=
 quiet=0
 
-while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:q? option; do
+while getopts hm:e:d:r:c:n:w:u:g:o:t:v:p:z:x:y:q? option; do
   case "${option}" in
     h) usage; exit 1;;
     m) magentoVersion=$(trim "$OPTARG");;
@@ -38,6 +39,7 @@ while getopts hm:e:d:r:c:n:w:u:g:t:v:p:z:x:y:q? option; do
     w) webPath=$(trim "$OPTARG");;
     u) ;;
     g) ;;
+    o) environment=$(trim "$OPTARG");;
     t) ;;
     v) ;;
     p) ;;
@@ -71,5 +73,10 @@ if [[ ${magentoVersion:0:1} == "2" ]]; then
 
   cd "${webPath}"
   # shellcheck disable=SC2016
-  php -r 'foreach (["app/etc/config.php", "app/etc/config.settings.php"] as $configFile) {if (file_exists($configFile)) {$config = include $configFile;if (is_array($config) && array_key_exists("system", $config)) {foreach ($config["system"] as $scope) {if (is_array($scope) && array_key_exists("general", $scope)) {$section = $scope["general"];if (is_array($section) && array_key_exists("locale", $section)) {$group = $section["locale"];if (is_array($group) && array_key_exists("code", $group)) {$field = $group["code"];echo "$field\n";}}}}}}}'
+  if [[ -n "${environment}" ]]; then
+    export PROJECT_ENV="${environment}"
+    php -r 'foreach (["app/etc/config.php", "app/etc/config.settings.php", "app/etc/env/base.php", "app/etc/env/".getenv("PROJECT_ENV").".php"] as $configFile) {if (file_exists($configFile)) {$config = include $configFile;if (is_array($config) && array_key_exists("system", $config)) {foreach ($config["system"] as $scope) {if (is_array($scope) && array_key_exists("general", $scope)) {$section = $scope["general"];if (is_array($section) && array_key_exists("locale", $section)) {$group = $section["locale"];if (is_array($group) && array_key_exists("code", $group)) {$field = $group["code"];echo "$field\n";}}}}}}}'
+  else
+    php -r 'foreach (["app/etc/config.php", "app/etc/config.settings.php", "app/etc/env/base.php"] as $configFile) {if (file_exists($configFile)) {$config = include $configFile;if (is_array($config) && array_key_exists("system", $config)) {foreach ($config["system"] as $scope) {if (is_array($scope) && array_key_exists("general", $scope)) {$section = $scope["general"];if (is_array($section) && array_key_exists("locale", $section)) {$group = $section["locale"];if (is_array($group) && array_key_exists("code", $group)) {$field = $group["code"];echo "$field\n";}}}}}}}'
+  fi
 fi

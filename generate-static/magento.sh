@@ -189,12 +189,32 @@ else
       -g "${webGroup}"
 
     if [[ $(versionCompare "${magentoVersion}" "2.2.0") == 1 ]]; then
-      #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
-      IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
-      #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
-      IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
-      localeList=( "${backendLocaleList[@]}" "${frontendLocaleList[@]}" )
-      localeList=( $(echo "${localeList[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ') )
+      if [[ -n "${backendLocales}" ]] && [[ "${backendLocales}" != "-" ]]; then
+        #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+        IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
+      else
+        backendLocaleList=()
+      fi
+
+      if [[ -n "${frontendLocales}" ]] && [[ "${frontendLocales}" != "-" ]]; then
+        #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+        IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
+      else
+        frontendLocaleList=()
+      fi
+
+      if [[ "${#backendLocaleList[@]}" -gt 0 ]] || [[ "${#frontendLocaleList[@]}" -gt 0 ]]; then
+        if [[ "${#frontendLocaleList[@]}" -eq 0 ]]; then
+          localeList=( "${backendLocaleList[@]}" )
+        elif [[ "${#backendLocaleList[@]}" -eq 0 ]]; then
+          localeList=( "${frontendLocaleList[@]}" )
+        else
+          localeList=( "${backendLocaleList[@]}" "${frontendLocaleList[@]}" )
+        fi
+        localeList=( $(echo "${localeList[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ') )
+      else
+        localeList=()
+      fi
 
       command="bin/magento setup:static-content:deploy"
       for locale in "${localeList[@]}"; do
@@ -219,12 +239,23 @@ else
         fi
       fi
     else
-      #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
-      IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
+      if [[ -n "${backendLocales}" ]] && [[ "${backendLocales}" != "-" ]]; then
+        #readarray -d , -t backendLocaleList < <(printf '%s' "${backendLocales}")
+        IFS=, read -d "" -r -a backendLocaleList < <(printf '%s' "${backendLocales}") || echo -n ""
+      else
+        backendLocaleList=()
+      fi
+
       #readarray -d , -t backendThemeList < <(printf '%s' "${backendThemes}")
       IFS=, read -d "" -r -a backendThemeList < <(printf '%s' "${backendThemes}") || echo -n ""
-      #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
-      IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
+
+      if [[ -n "${frontendLocales}" ]] && [[ "${frontendLocales}" != "-" ]]; then
+        #readarray -d , -t frontendLocaleList < <(printf '%s' "${frontendLocales}")
+        IFS=, read -d "" -r -a frontendLocaleList < <(printf '%s' "${frontendLocales}") || echo -n ""
+      else
+        frontendLocaleList=()
+      fi
+
       #readarray -d , -t frontendThemeList < <(printf '%s' "${frontendThemes}")
       IFS=, read -d "" -r -a frontendThemeList < <(printf '%s' "${frontendThemes}") || echo -n ""
 

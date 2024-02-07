@@ -72,35 +72,42 @@ if [[ -z "${sharedPath}" ]]; then
   sharedPath="shared"
 fi
 
-if [[ "${revert}" == 1 ]]; then
-  "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
-    -s "${sharedPath}" \
-    -f "${fileName}" \
-    -r
-else
-  if [[ "${overwrite}" == 1 ]]; then
-    "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
-      -s "${sharedPath}" \
-      -f "${fileName}" \
-      -o
-  else
-    "${currentPath}/../core/script/web-server/all.sh" "${currentPath}/create-shared/web-server.sh" \
-      -s "${sharedPath}" \
-      -f "${fileName}"
-  fi
-fi
+fileStatus=$("${currentPath}/../core/script/run-quiet.sh" "webServer:single" "${currentPath}/create-shared/web-server-check.sh" \
+  --fileName "${fileName}")
 
-if [[ "${revert}" == 0 ]]; then
-  if [[ "${updateLink}" == 1 ]]; then
-    "${currentPath}/../core/script/env/web-servers.sh" "${currentPath}/create-shared/env-web-server.sh" \
-      -f "${fileName}" \
-      -s "${sharedPath}"
-  fi
+if [[ "${fileStatus}" == "mounted" ]]; then
+  echo "${fileName} is mounted"
 else
-  if [[ "${updateLink}" == 1 ]]; then
-    "${currentPath}/../core/script/env/web-servers.sh" "${currentPath}/create-shared/env-web-server.sh" \
-      -f "${fileName}" \
-      -s "${sharedPath}" \
-      -r
+  if [[ "${revert}" == 1 ]]; then
+    "${currentPath}/../core/script/run.sh" "webServer:all" "${currentPath}/create-shared/web-server.sh" \
+      --sharedPath "${sharedPath}" \
+      --fileName "${fileName}" \
+      --revert
+  else
+    if [[ "${overwrite}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "webServer:all" "${currentPath}/create-shared/web-server.sh" \
+        --sharedPath "${sharedPath}" \
+        --fileName "${fileName}" \
+        --overwrite
+    else
+      "${currentPath}/../core/script/run.sh" "webServer:all" "${currentPath}/create-shared/web-server.sh" \
+        --sharedPath "${sharedPath}" \
+        --fileName "${fileName}"
+    fi
+  fi
+
+  if [[ "${revert}" == 0 ]]; then
+    if [[ "${updateLink}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "webServer:all,env:local" "${currentPath}/create-shared/web-server-env.sh" \
+        --sharedPath "${sharedPath}" \
+        --fileName "${fileName}"
+    fi
+  else
+    if [[ "${updateLink}" == 1 ]]; then
+      "${currentPath}/../core/script/run.sh" "webServer:all,env:local" "${currentPath}/create-shared/web-server-env.sh" \
+        --sharedPath "${sharedPath}" \
+        --fileName "${fileName}" \
+        --revert
+    fi
   fi
 fi

@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+currentPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="${0##*/}"
 
 usage()
@@ -9,22 +10,17 @@ cat >&2 << EOF
 usage: ${scriptName} options
 
 OPTIONS:
-  -h  Show this message
-  -w  Web path of Magento installation
-  -u  Web user (optional)
-  -g  Web group (optional)
-  -s  shared path
-  -f  file to share
-  -o  Overwrite existing files (Optional)
-  -r  revert moving file to shared
+  --help        Show this message
+  --webPath     Web path of Magento installation
+  --webUser     Web user (optional)
+  --webGroup    Web group (optional)
+  --sharedPath  Shared path, default: shared
+  --fileName    File to share
+  --overwrite   Overwrite existing files (Optional)
+  --revert      revert moving file to shared
 
-Example: ${scriptName} -w /var/www/magento/htdocs/ -s /var/www/magento/shared/ -f app/etc/config.php -o
+Example: ${scriptName} --webPath /var/www/magento/htdocs/ --sharedPath /var/www/magento/shared/ --fileName app/etc/config.php --overwrite
 EOF
-}
-
-trim()
-{
-  echo -n "$1" | xargs
 }
 
 webPath=
@@ -32,29 +28,25 @@ webUser=
 webGroup=
 sharedPath=
 fileName=
-overwrite=0
-revert=0
+overwrite=
+revert=
 
-while getopts hn:w:u:g:t:v:p:z:x:y:s:f:or? option; do
-  case "${option}" in
-    h) usage; exit 1;;
-    n) ;;
-    w) webPath=$(trim "$OPTARG");;
-    u) webUser=$(trim "$OPTARG");;
-    g) webGroup=$(trim "$OPTARG");;
-    t) ;;
-    v) ;;
-    p) ;;
-    z) ;;
-    x) ;;
-    y) ;;
-    s) sharedPath=$(trim "$OPTARG");;
-    f) fileName=$(trim "$OPTARG");;
-    o) overwrite=1;;
-    r) revert=1;;
-    ?) usage; exit 1;;
-  esac
-done
+if [[ -f "${currentPath}/../../core/prepare-parameters.sh" ]]; then
+  source "${currentPath}/../../core/prepare-parameters.sh"
+elif [[ -f /tmp/prepare-parameters.sh ]]; then
+  source /tmp/prepare-parameters.sh
+fi
+
+if [[ -z "${webPath}" ]]; then
+  echo "No web path specified!"
+  usage
+  exit 1
+fi
+
+if [[ ! -d "${webPath}" ]]; then
+  echo "No web path available!"
+  exit 0
+fi
 
 currentUser="$(whoami)"
 if [[ -z "${webUser}" ]]; then
@@ -70,17 +62,6 @@ if [[ -z "${webGroup}" ]]; then
   webGroup="${currentGroup}"
 fi
 
-if [[ -z "${webPath}" ]]; then
-  echo "No web path specified!"
-  usage
-  exit 1
-fi
-
-if [[ ! -d "${webPath}" ]]; then
-  echo "No web path available!"
-  exit 0
-fi
-
 if [[ -z "${sharedPath}" ]]; then
   sharedPath="shared"
 fi
@@ -90,9 +71,18 @@ if [[ -z "${fileName}" ]]; then
   exit 1
 fi
 
+if [[ -z "${overwrite}" ]]; then
+  overwrite=0
+fi
+
+if [[ -z "${revert}" ]]; then
+  revert=0
+fi
+
 webRoot=$(dirname "${webPath}")
 
 webPathFileName="${webPath}/${fileName}"
+webPathFilePath=$(dirname "${webPathFileName}")
 sharedPathFileName="${webRoot}/${sharedPath}/${fileName}"
 sharedPathFilePath=$(dirname "${sharedPathFileName}")
 
@@ -114,7 +104,7 @@ if [[ "${revert}" == 0 ]]; then
     set -e
   fi
 
-  if [[ $(mount | grep "${webPathFileName}" | wc -l) -gt 0 ]]; then
+  if [[ $(mount | grep " ${webPathFileName} " | wc -l) -gt 0 ]] || [[ $(mount | grep " ${webPathFilePath} " | wc -l) -gt 0 ]]; then
     echo "${webPathFileName} is mounted"
   elif [[ -L "${webPathFileName}" ]]; then
     echo "${webPathFileName} is already a symlink"
@@ -149,7 +139,7 @@ if [[ "${revert}" == 0 ]]; then
     fi
   fi
 else
-  if [[ $(mount | grep "${webPathFileName}" | wc -l) -gt 0 ]]; then
+  if [[ $(mount | grep " ${webPathFileName} " | wc -l) -gt 0 ]] || [[ $(mount | grep " ${webPathFilePath} " | wc -l) -gt 0 ]]; then
     echo "${webPathFileName} is mounted"
   elif [[ -L "${webPathFileName}" ]]; then
     echo "Removing symlink at: ${webPathFileName}"
