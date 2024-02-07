@@ -14,11 +14,11 @@ OPTIONS:
   --webServerServerName  Server name
   --envPropertyFile      Environment property file
   --webPath              Web path of Magento installation
-  --sharedPath           Shared path
+  --sharedPath           Shared path, default: shared
   --fileName             File to move
   --revert               Revert moving file to shared
 
-Example: ${scriptName}
+Example: ${scriptName} --webServerServerName ws --envPropertyFile /path/to/env.properties --webPath /var/www/magento/htdocs/ --fileName app/etc/config.php
 EOF
 }
 
