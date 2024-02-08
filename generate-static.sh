@@ -65,7 +65,7 @@ backendThemes=$(IFS=, ; echo "${backendThemeList[*]}")
 echo "Determining required frontend locales"
 databaseFrontendLocaleList=( $("${currentPath}/../core/script/magento/database/quiet.sh" "${currentPath}/generate-static/database-frontend-locales.sh" -q) )
 if [[ -n "${environment}" ]]; then
-  webServerFrontendLocaleList=( $("${currentPath}/../core/script/magento/web-server/quiet.sh" "${currentPath}/generate-static/web-server-frontend-locales.sh" -e "${environment}" -q) )
+  webServerFrontendLocaleList=( $("${currentPath}/../core/script/magento/web-server/quiet.sh" "${currentPath}/generate-static/web-server-frontend-locales.sh" -o "${environment}" -q) )
 else
   webServerFrontendLocaleList=( $("${currentPath}/../core/script/magento/web-server/quiet.sh" "${currentPath}/generate-static/web-server-frontend-locales.sh" -q) )
 fi
