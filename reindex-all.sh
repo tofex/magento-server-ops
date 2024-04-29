@@ -42,6 +42,8 @@ done
 
 "${currentPath}/../core/script/run.sh" "install,database" "${currentPath}/reindex-all/database.sh"
 
+"${currentPath}/../core/script/run.sh" "elasticsearch:ignore" "${currentPath}/reindex-all/elasticsearch.sh"
+
 if [[ -n "${phpExecutable}" ]]; then
   if [[ -n "${memoryLimit}" ]]; then
     "${currentPath}/../core/script/run.sh" "install,webServer" "${currentPath}/reindex-all/web-server.sh" \

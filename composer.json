@@ -1,6 +1,6 @@
 {
     "name": "tofex/magento-server-ops",
-    "version": "1.0.64",
+    "version": "1.0.65",
     "type": "magento-server-component",
     "description": "Tofex Magento Server Operation",
     "license": "MIT",
